@@ -97,6 +97,7 @@ class Bot extends Client {
 
   // Updates slash commands with Discord.
   async updateCommands() {
+    console.info(`${chalk.cyanBright('[Bot]')} Updating slash commands...`);
     // Get remote target
     const remote = () =>
       config.guild
@@ -134,8 +135,6 @@ class Bot extends Client {
         }
       })
     );
-
-    console.info(`${chalk.cyanBright('[Bot]')} Updated slash commands`);
   }
 
   // Loads and starts up the bot.
@@ -146,7 +145,7 @@ class Bot extends Client {
 
       await this.login(config.token);
       await this.updateCommands();
-      console.info(`${chalk.cyanBright('[Bot]')} Bot now online`);
+      console.info(`${chalk.cyanBright('[Bot]')} Bot is now online`);
     } catch (error) {
       console.error(chalk.red(`bot#start >> ${error.message}`));
     }
