@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 const Debug = {
   name: 'debug',
-  description: "Displays the bot's current uptime, cluster info and latency.",
+  description: "(WIP) Displays the bot's current uptime, cluster info, and latency.",
   execute({ client }) {
     try {
       // Get uptime in nearest days, hours, minutes and seconds
@@ -61,7 +61,7 @@ const Debug = {
       // Send brief error message in Discord response
       return {
         title: 'Debug',
-        description: `An error occured while getting this bot's debug info.\n**>>** \`${error.message}\``,
+        description: `An error occured while retrieving this bot's debug info.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
       };
     }

@@ -146,6 +146,7 @@ class Bot extends Client {
 
       await this.login(config.token);
       await this.updateCommands();
+      console.info(`${chalk.cyanBright('[Bot]')} Bot now online`);
     } catch (error) {
       console.error(chalk.red(`bot#start >> ${error.message}`));
     }
