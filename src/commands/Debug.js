@@ -17,10 +17,10 @@ const Debug = {
 
       // Create array of these values to later filter out null values
       let formattedArray = [
-        `${days > 0 ? days + (days == 1 ? ' day' : ' days') : ''}`,
-        `${hours > 0 ? hours + (hours == 1 ? ' hour' : ' hours') : ''}`,
-        `${minutes > 0 ? minutes + (minutes == 1 ? ' minute' : ' minutes') : ''}`,
-        `${seconds > 0 ? seconds + (seconds == 1 ? ' second' : ' seconds') : ''}`,
+        days > 0 ? `${days} ${(days == 1 ? 'day' : 'days')}` : ``,
+        hours > 0 ? `${hours} ${(hours == 1 ? 'hour' : 'hours')}` : ``,
+        minutes > 0 ? `${minutes} ${(minutes == 1 ? 'minute' : 'minutes')}` : ``,
+        seconds > 0 ? `${seconds} ${(seconds == 1 ? 'second' : 'seconds')}` : ``,
       ];
 
       return {
@@ -42,11 +42,7 @@ const Debug = {
           { name: 'Cluster', value: `\`${'N/A'}\``, inline: true },
           { name: 'Shard', value: `\`${'N/A'}\``, inline: true },
           // Latency between Discord bot and user
-          {
-            name: 'Bot Latency',
-            value: `\`${'N/A'} ms\``,
-            inline: true,
-          },
+          { name: 'Bot Latency', value: `\`${'N/A'} ms\``, inline: true },
           // Latency between Discord bot and Discord API
           {
             name: 'API Latency',

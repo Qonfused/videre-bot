@@ -41,7 +41,7 @@ class Bot extends Client {
     }
     /*
     * Note that embeds and attachments are currently not supported while
-    * architectural issues in conflict are currently being solved.
+    * architectural issues in conflict are currently being resolved.
     *
     * See the below issue for more information:
     * https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524

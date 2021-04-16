@@ -2,7 +2,21 @@ import chalk from 'chalk';
 
 const Card = {
   name: 'card',
-  description: "(WIP) Returns a card by name or by a given search query.",
+  description: "(WIP) Returns a card by name and/or by a given search query via Scryfall.",
+  options: [
+    {
+      name: 'name',
+      description: 'A specific cardname to find a specific card',
+      type: 'string',
+      required: false,
+    },
+    {
+      name: 'query',
+      description: 'A search query to search for related cards',
+      type: 'string',
+      required: false,
+    },
+  ],
   execute({ client }) {
     try {
       //

@@ -1,8 +1,42 @@
 import chalk from 'chalk';
+import { formats } from 'utils/magic';
 
 const Decklist = {
   name: 'decklist',
-  description: "(WIP) Displays a decklist or deck-related stats by archetype, player, date, or by a search query.",
+  description: "(WIP) Displays decklist(s) filtered by format, archetype, player, date, and/or by a search query.",
+  options: [
+    {
+      name: 'format',
+      description: 'A specific format to return events from',
+      type: 'string',
+      required: false,
+      choices: formats,
+    },
+    {
+      name: 'archetype',
+      description: 'A specific archetype to return decklists from',
+      type: 'string',
+      required: false,
+    },
+    {
+      name: 'player',
+      description: 'A specific player to return decklists from',
+      type: 'string',
+      required: false,
+    },
+    {
+      name: 'date',
+      description: 'A specific date to return events from in MM/DD/YY format',
+      type: 'string',
+      required: false,
+    },
+    {
+      name: 'query',
+      description: 'A search query to search for related decklists',
+      type: 'string',
+      required: false,
+    },
+  ],
   execute({ client }) {
     try {
       //

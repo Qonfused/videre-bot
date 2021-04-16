@@ -1,9 +1,32 @@
 import chalk from 'chalk';
 import { group } from "d3-array";
+import { formats, eventTypes } from 'utils/magic';
 
 const Catalog = {
   name: 'catalog',
-  description: "(WIP) Displays most recent events in event catalog.",
+  description: "(WIP) Displays most recent events by format, type, and/or date.",
+  options: [
+    {
+      name: 'format',
+      description: 'A specific format to return events from',
+      type: 'string',
+      required: false,
+      choices: formats,
+    },
+    {
+      name: 'type',
+      description: 'A specific event type to return events from',
+      type: 'string',
+      required: false,
+      choices: eventTypes,
+    },
+    {
+      name: 'date',
+      description: 'A specific date to return events from in MM/DD/YY format',
+      type: 'string',
+      required: false,
+    },
+  ],
   execute({ client }) {
     // Query from database
     // let data =

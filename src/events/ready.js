@@ -6,7 +6,7 @@ const ReadyEvent = {
   execute(client) {
     try {
       // Log 'Ready' status
-      console.info(`${chalk.cyanBright('[Bot]')} Connected as ${client.user.tag}`);
+      // console.info(`${chalk.cyanBright('[Bot]')} Connected as ${client.user.tag}`);
       // Set bot activity status
       client.user.setActivity('feedback • /help', { type: 'LISTENING' });
     } catch (error) {
