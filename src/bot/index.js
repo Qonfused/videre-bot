@@ -32,10 +32,10 @@ class Bot extends Client {
    * @param {String | APIMessage} content Stringified or pre-processed response.
    */
   async send(interaction, content) {
-    var { data } = await this.createAPIMessage(interaction, content);
+    let { data } = await this.createAPIMessage(interaction, content);
 
     // Make error messages with embed color '0xe74c3c' ephemeral
-    if(data.embeds[0].color == 0xe74c3c) {
+    if(data.embeds[0].color === 0xe74c3c) {
       data.flags = INTERACTION_RESPONSE_FLAGS.EPHEMERAL;
       data.content = data.embeds[0].description;
     }
