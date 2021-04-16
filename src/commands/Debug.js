@@ -24,7 +24,7 @@ const Debug = {
       ];
 
       return {
-        title: 'Debug'+test_error,
+        title: 'Debug',
         fields: [
           // Uptime since 'Ready' status
           {
