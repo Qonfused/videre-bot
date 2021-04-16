@@ -38,7 +38,14 @@ class Bot extends Client {
     if(data.embeds[0].color == 0xe74c3c) {
       data.flags = INTERACTION_RESPONSE_FLAGS.EPHEMERAL;
       data.content = data.embeds[0].description;
-    } // Note that embeds (any rich content) are currently not supported
+    }
+    /*
+    * Note that embeds and attachments are currently not supported while
+    * architectural issues in conflict are currently being solved.
+    *
+    * See the below issue for more information:
+    * https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
+    */
 
     const response = await this.api
       .interactions(interaction.id, interaction.token)
