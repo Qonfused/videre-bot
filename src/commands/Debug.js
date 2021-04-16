@@ -34,7 +34,7 @@ const Debug = {
                 .filter(Boolean)
                 .join(', ')
                 // Replace last comma with ' and' for fluency
-                .replace(/, ([^,]*)$/, ' and $1') + '.',
+                .replace(/, ([^,]*)$/, ', and $1') + '.',
             inline: false,
           },
           // Various cluster information
