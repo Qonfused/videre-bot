@@ -5,6 +5,7 @@ const Debug = {
   description: "(WIP) Displays the bot's current uptime, cluster info, and latency.",
   execute({ client }) {
     try {
+      throw new Error('test error')
       // Get uptime in nearest days, hours, minutes and seconds
       let totalSeconds = client.uptime / 1000;
       let days = Math.floor(totalSeconds / 86400).toFixed(0);
@@ -59,6 +60,7 @@ const Debug = {
         title: 'Debug',
         description: `An error occured while retrieving this bot's debug info.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
+        ephemeral: true,
       };
     }
   },

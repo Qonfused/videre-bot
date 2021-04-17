@@ -22,6 +22,23 @@ class Bot extends Client {
       );
     }
 
+    /*
+    * Note that embeds and attachments are currently not supported.
+    * See the below issue for more information:
+    * https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
+    */
+    if (content.options?.ephemeral === true || content.options?.embed.ephemeral === true) {
+      if (content.options?.embed) {
+        content.options.content = content.options.embed.description;
+      }
+      delete content.options.embed;
+
+      content.resolveData();
+      content.data.flags = INTERACTION_RESPONSE_FLAGS.EPHEMERAL;
+
+      return content;
+    }
+
     return content.resolveData();
   }
 
@@ -32,20 +49,8 @@ class Bot extends Client {
    * @param {String | APIMessage} content Stringified or pre-processed response.
    */
   async send(interaction, content) {
-    let { data } = await this.createAPIMessage(interaction, content);
-
-    // Make error messages with embed color '0xe74c3c' ephemeral
-    if(data.embeds[0].color === 0xe74c3c) {
-      data.flags = INTERACTION_RESPONSE_FLAGS.EPHEMERAL;
-      data.content = data.embeds[0].description;
-    }
-    /*
-    * Note that embeds and attachments are currently not supported while
-    * architectural issues in conflict are currently being resolved.
-    *
-    * See the below issue for more information:
-    * https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
-    */
+    const { data } = await this.createAPIMessage(interaction, content);
+    console.log(data);
 
     const response = await this.api
       .interactions(interaction.id, interaction.token)
