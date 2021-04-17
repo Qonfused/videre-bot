@@ -18,8 +18,15 @@ const RawEvent = {
         options: options?.map(({ value }) => value),
       });
       if (!output) return;
+      if (output.ephemeral) return {
+        content: output.description,
+        ephemeral: true,
+      }
 
-      return client.send(interaction, output);
+      return client.send(
+        interaction,
+        typeof output === 'string' ? { content: output } : output
+      );
     } catch (error) {
       console.error(chalk.red(`raw >> ${error.stack}`));
     }

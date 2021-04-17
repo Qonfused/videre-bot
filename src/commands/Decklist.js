@@ -3,11 +3,12 @@ import { formats } from 'utils/magic';
 
 const Decklist = {
   name: 'decklist',
-  description: "(WIP) Displays decklist(s) filtered by format, archetype, player, date, and/or by a search query.",
+  description:
+    '(WIP) Displays decklist(s) filtered by format, archetype, player, date, and/or search query.',
   options: [
     {
       name: 'format',
-      description: 'A specific format to return events from',
+      description: 'A specific format to return decklists from',
       type: 'string',
       required: false,
       choices: formats,
@@ -26,7 +27,7 @@ const Decklist = {
     },
     {
       name: 'date',
-      description: 'A specific date to return events from in MM/DD/YY format',
+      description: 'A specific date to return decklists from in MM/DD/YY format',
       type: 'string',
       required: false,
     },
@@ -48,6 +49,7 @@ const Decklist = {
         title: 'Decklist',
         description: `An error occured while retrieving decklists.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
+        ephemeral: true,
       };
     }
   },

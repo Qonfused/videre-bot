@@ -1,5 +1,5 @@
 import Bot from 'bot';
-import Help from 'commands/Help';
+import Videre from 'commands/Videre';
 
 let client;
 
@@ -8,9 +8,9 @@ beforeAll(() => {
   client.loadCommands();
 });
 
-describe('commands/Help', () => {
+describe('commands/Videre', () => {
   it("displays this bot's commands", () => {
-    const output = Help.execute({ client });
+    const output = Videre.execute({ client });
 
     expect(output.fields.length).not.toBe(0);
   });

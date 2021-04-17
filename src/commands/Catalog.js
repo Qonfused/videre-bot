@@ -1,10 +1,10 @@
 import chalk from 'chalk';
-import { group } from "d3-array";
+import { group } from 'd3-array';
 import { formats, eventTypes } from 'utils/magic';
 
 const Catalog = {
   name: 'catalog',
-  description: "(WIP) Displays most recent events by format, type, and/or date.",
+  description: '(WIP) Displays most recent events by format, type, and/or date.',
   options: [
     {
       name: 'format',
@@ -47,6 +47,7 @@ const Catalog = {
         title: 'Catalog',
         description: `An error occured while retrieving the events catalog.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
+        ephemeral: true,
       };
     }
   },

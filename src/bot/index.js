@@ -3,7 +3,7 @@ import { Client, Collection, APIMessage } from 'discord.js';
 import { readdirSync } from 'fs';
 import { resolve } from 'path';
 import { validateMessage, validateCommand } from 'utils/discord';
-import { INTERACTION_RESPONSE_TYPE, INTERACTION_RESPONSE_FLAGS } from 'constants';
+import { INTERACTION_RESPONSE_TYPE } from 'constants';
 import config from 'config';
 
 // An extended `Client` to support slash-command interactions and events.
@@ -20,6 +20,7 @@ class Bot extends Client {
         this.channels.resolve(interaction.channel_id),
         validateMessage(content)
       );
+      console.log(content);
     }
 
     return content.resolveData();
@@ -32,20 +33,7 @@ class Bot extends Client {
    * @param {String | APIMessage} content Stringified or pre-processed response.
    */
   async send(interaction, content) {
-    let { data } = await this.createAPIMessage(interaction, content);
-
-    // Make error messages with embed color '0xe74c3c' ephemeral
-    if(data.embeds[0].color === 0xe74c3c) {
-      data.flags = INTERACTION_RESPONSE_FLAGS.EPHEMERAL;
-      data.content = data.embeds[0].description;
-    }
-    /*
-    * Note that embeds and attachments are currently not supported while
-    * architectural issues in conflict are currently being resolved.
-    *
-    * See the below issue for more information:
-    * https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
-    */
+    const { data } = await this.createAPIMessage(interaction, content);
 
     const response = await this.api
       .interactions(interaction.id, interaction.token)
@@ -56,6 +44,7 @@ class Bot extends Client {
         },
       });
 
+    console.log(response);
     return response;
   }
 

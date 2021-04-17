@@ -17,14 +17,15 @@ const Debug = {
 
       // Create array of these values to later filter out null values
       let formattedArray = [
-        days > 0 ? `${days} ${(days == 1 ? 'day' : 'days')}` : ``,
-        hours > 0 ? `${hours} ${(hours == 1 ? 'hour' : 'hours')}` : ``,
-        minutes > 0 ? `${minutes} ${(minutes == 1 ? 'minute' : 'minutes')}` : ``,
-        seconds > 0 ? `${seconds} ${(seconds == 1 ? 'second' : 'seconds')}` : ``,
+        days > 0 ? `${days} ${days == 1 ? 'day' : 'days'}` : ``,
+        hours > 0 ? `${hours} ${hours == 1 ? 'hour' : 'hours'}` : ``,
+        minutes > 0 ? `${minutes} ${minutes == 1 ? 'minute' : 'minutes'}` : ``,
+        seconds > 0 ? `${seconds} ${seconds == 1 ? 'second' : 'seconds'}` : ``,
       ];
 
       return {
         title: 'Debug',
+        description: 'test',
         fields: [
           // Uptime since 'Ready' status
           {
@@ -50,6 +51,7 @@ const Debug = {
             inline: true,
           },
         ],
+        ephemeral: true,
       };
     } catch (error) {
       // Send full error stack to console
@@ -59,6 +61,7 @@ const Debug = {
         title: 'Debug',
         description: `An error occured while retrieving this bot's debug info.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
+        ephemeral: true,
       };
     }
   },

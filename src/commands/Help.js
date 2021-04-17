@@ -14,7 +14,15 @@ const Help = {
         })),
       };
     } catch (error) {
+      // Send full error stack to console
       console.error(chalk.red(`/help >> ${error.stack}`));
+      // Send brief error message in Discord response
+      return {
+        title: 'Help',
+        description: `An error occured while retrieving bot commands.\n**>>** \`${error.message}\``,
+        color: 0xe74c3c,
+        ephemeral: true,
+      };
     }
   },
 };

@@ -1,6 +1,11 @@
 import { JSDOM } from 'jsdom';
+import { APIMessage } from 'discord.js';
 import createDOMPurify from 'dompurify';
-import { EMBED_DEFAULTS, COMMAND_OPTION_TYPES } from 'constants';
+import {
+  INTERACTION_RESPONSE_FLAGS,
+  EMBED_DEFAULTS,
+  COMMAND_OPTION_TYPES,
+} from 'constants';
 
 // Shared sanitation context
 const { window } = new JSDOM('');
@@ -35,7 +40,7 @@ export const sanitize = message => {
   );
 };
 
-// Discord embed prop char limits
+// Discord embed property size limits
 const MAX_TITLE_LENGTH = 256;
 const MAX_DESC_LENGTH = 2048;
 
@@ -43,47 +48,67 @@ const MAX_FIELD_LENGTH = 25;
 const MAX_FIELD_NAME_LENGTH = 256;
 const MAX_FIELD_VALUE_LENGTH = 1024;
 
+export const validateEmbed = ({ title, description, fields, ...rest }) => ({
+  ...EMBED_DEFAULTS,
+  title: title?.slice(0, MAX_TITLE_LENGTH),
+  description: description?.slice(0, MAX_DESC_LENGTH),
+  fields: fields?.reduce((fields, field, index) => {
+    if (index <= MAX_FIELD_LENGTH) {
+      const { name, value, inline } = field;
+
+      fields.push({
+        name: name.slice(0, MAX_FIELD_NAME_LENGTH),
+        value: value.slice(0, MAX_FIELD_VALUE_LENGTH),
+        inline: Boolean(inline),
+      });
+    }
+
+    return fields;
+  }, []),
+  ...rest,
+});
+
 /**
- * Generates an embed with default properties.
  *
- * @param {{ title: String, description: String, fields?: any[] }} props Overloaded embed properties.
+ * @param {INTERACTION_RESPONSE_FLAGS} flags
  */
-export const validateEmbed = props => {
-  const { title, description, fields, ...rest } = props;
+export const validateFlags = flags =>
+  flags
+    ? Object.keys(flags).find(flag => INTERACTION_RESPONSE_FLAGS[flag.toUpperCase()])
+    : null;
 
+// Discord message content size limit
+const MAX_CONTENT_LENGTH = 2000;
+
+/**
+ * Validates a message response and its embed if available.
+ *
+ * @param {APIMessage} message Message object or inline embed
+ */
+export const validateMessage = message => {
+  console.log(message)
+  if (!message) return;
+
+  // Early return if parsing an existing message
+  if (message instanceof APIMessage) return message;
+
+  // Parse inline message flags
+  const flags = validateFlags(message);
+
+  // Handle vanilla message
+  if (message.content || message.embeds)
+    return {
+      flags,
+      content: message.content?.slice(0, MAX_CONTENT_LENGTH),
+      embeds: message.embeds?.map(validateEmbed),
+    };
+
+  // Handle inline embed
   return {
-    ...EMBED_DEFAULTS,
-    title: title?.slice(0, MAX_TITLE_LENGTH),
-    description: description?.slice(0, MAX_DESC_LENGTH),
-    fields: fields?.reduce((fields, field, index) => {
-      if (index <= MAX_FIELD_LENGTH) {
-        const { name, value, ...rest } = field;
-
-        fields.push({
-          name: name.slice(0, MAX_FIELD_NAME_LENGTH),
-          value: value.slice(0, MAX_FIELD_VALUE_LENGTH),
-          ...rest,
-        });
-      }
-
-      return fields;
-    }, []),
-    ...rest,
+    flags,
+    embed: validateEmbed(message),
   };
 };
-
-// Discord message char limit
-const MAX_MESSAGE_LENGTH = 2000;
-
-/**
- * Validates a message response and its embed if available
- *
- * @param {String | Object} message Discord message response.
- */
-export const validateMessage = message =>
-  typeof message === 'object'
-    ? { embed: validateEmbed(message) }
-    : message.slice(0, MAX_MESSAGE_LENGTH);
 
 // Validates human-readable command meta into a Discord-ready object.
 export const validateCommand = ({ name, description, options }) => ({

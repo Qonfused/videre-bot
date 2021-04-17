@@ -3,7 +3,8 @@ import { formats, eventTypes } from 'utils/magic';
 
 const Metagame = {
   name: 'metagame',
-  description: "(WIP) Displays a metagame breakdown of decks from the most recent events by format.",
+  description:
+    '(WIP) Displays a metagame breakdown of decks by format, archetype, and/or query.',
   options: [
     {
       name: 'format',
@@ -11,6 +12,18 @@ const Metagame = {
       type: 'string',
       required: false,
       choices: formats,
+    },
+    {
+      name: 'archetype',
+      description: 'A specific archetype to return metagame data from',
+      type: 'string',
+      required: false,
+    },
+    {
+      name: 'query',
+      description: 'A search query to search metagame data from',
+      type: 'string',
+      required: false,
     },
   ],
   execute({ client }) {
@@ -24,6 +37,7 @@ const Metagame = {
         title: 'Metagame',
         description: `An error occured while retrieving metagame data.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
+        ephemeral: true,
       };
     }
   },
