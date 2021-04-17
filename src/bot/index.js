@@ -22,11 +22,9 @@ class Bot extends Client {
       );
     }
 
-    /*
-    * Note that embeds and attachments are currently not supported.
-    * See the below issue for more information:
-    * https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
-    */
+    // Note that embeds and attachments are currently not supported.
+    // See the below issue for more information:
+    // https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
     if (content.options?.ephemeral === true || content.options?.embed.ephemeral === true) {
       if (content.options?.embed) {
         content.options.content = content.options.embed?.description;
@@ -50,7 +48,6 @@ class Bot extends Client {
    */
   async send(interaction, content) {
     const { data } = await this.createAPIMessage(interaction, content);
-    console.log(data);
 
     const response = await this.api
       .interactions(interaction.id, interaction.token)
@@ -150,6 +147,16 @@ class Bot extends Client {
 
       await this.login(config.token);
       await this.updateCommands();
+
+      // Update status to indicate bot is ready
+      this.user.setPresence({
+        status: 'online',
+        activity: {
+            name: 'feedback • /help',
+            type: 'LISTENING',
+        }
+      });
+
       console.info(`${chalk.cyanBright('[Bot]')} Bot is now online`);
     } catch (error) {
       console.error(chalk.red(`bot#start >> ${error.message}`));

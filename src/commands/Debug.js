@@ -23,6 +23,8 @@ const Debug = {
         seconds > 0 ? `${seconds} ${(seconds == 1 ? 'second' : 'seconds')}` : ``,
       ];
 
+      let t = 0;
+
       return {
         title: 'Debug',
         fields: [
@@ -34,7 +36,11 @@ const Debug = {
                 .filter(Boolean)
                 .join(', ')
                 // Replace last comma with ' and' for fluency
-                .replace(/, ([^,]*)$/, ', and $1') + '.',
+                .replace(/, ([^,]*)$/, ' and $1')
+                // Add linebreak after second instance of comma
+                .replace(/,/g, function (match) {
+                  t++; return (t === 2) ? ",\n" : match;
+                }) + '.',
             inline: false,
           },
           // Various cluster information
