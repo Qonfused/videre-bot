@@ -29,7 +29,7 @@ class Bot extends Client {
     */
     if (content.options?.ephemeral === true || content.options?.embed.ephemeral === true) {
       if (content.options?.embed) {
-        content.options.content = content.options.embed.description;
+        content.options.content = content.options.embed?.description;
       }
       delete content.options.embed;
 
