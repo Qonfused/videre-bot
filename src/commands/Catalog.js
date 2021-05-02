@@ -47,6 +47,7 @@ const Catalog = {
         title: 'Catalog',
         description: `An error occured while retrieving the events catalog.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
+        ephemeral: true,
       };
     }
   },

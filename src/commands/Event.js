@@ -14,6 +14,7 @@ const Event = {
         title: 'Event',
         description: `An error occured while retrieving events.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
+        ephemeral: true,
       };
     }
   },

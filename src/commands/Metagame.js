@@ -24,6 +24,7 @@ const Metagame = {
         title: 'Metagame',
         description: `An error occured while retrieving metagame data.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
+        ephemeral: true,
       };
     }
   },
