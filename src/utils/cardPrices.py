@@ -21,8 +21,6 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
 
         scryfall_uri = autocompleteAPI.json()["scryfall_uri"]
         purchase_uris = autocompleteAPI.json()["purchase_uris"]
-
-        current_prices = autocompleteAPI.json()["prices"]
     else:
         matchedName = cardname.replace("/", "%2F")
 
@@ -52,7 +50,7 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
     combined_prices = combined_prices.tail(time_interval).set_index("Date")
 
     # Generate line plot for timeseries
-    def render_fig_table(data, columns, xlabel, ylabel, title, fig_width=11, fig_height=4):
+    def render_fig_table(data, columns, xlabel, ylabel, title, fig_width = 11, fig_height = 4):
         sns.set(rc = { "figure.figsize" : (fig_width, fig_height) })
 
         fig, ax = plt.subplots()
@@ -81,7 +79,7 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
         combined_prices.columns,
         xlabel = "Dates", ylabel = "TCGplayer Price (USD $)",
         title = f"Price History for { name }",
-        fig_width=11, fig_height=4,
+        fig_width = 11, fig_height = 4,
     )
 
     # Format currency for table output
@@ -101,7 +99,7 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
             "MTGStocks": f"https://www.mtgstocks.com/prints/{ slug }"
         }
 
-        data["prices"] : current_prices
+        data["prices"] = autocompleteAPI.json()["prices"]
     else:
         data["urls"] = { 'MTGStocks': f"https://www.mtgstocks.com/prints/{ slug }" }
 
@@ -125,7 +123,7 @@ def get_args(message, command):
     return self
 
 # Helper function for setting flags via argv
-def get_argv(arg, default=0):
+def get_argv(arg, default = None):
     if len(sys.argv) > 1:
         self = self = get_args(" ".join(sys.argv), str(sys.argv[0]))
         if arg in self:
@@ -135,9 +133,7 @@ def get_argv(arg, default=0):
     return default
 
 # argv parameters
-CARDNAME = get_argv("cardname", None)
-MATCH = get_argv("match", "fuzzy")
-TIME_INTERVAL = int(get_argv("time_interval", 7*1))
+CARDNAME = get_argv("cardname")
 
-print(getPriceHistory(CARDNAME, MATCH, TIME_INTERVAL))
+print(getPriceHistory(CARDNAME))
 sys.stdout.flush()

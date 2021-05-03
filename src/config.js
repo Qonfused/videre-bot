@@ -16,6 +16,9 @@ const config = {
   token: process.env.TOKEN,
   // Database DATABASE_URL
   database: process.env.DATABASE_URL,
+  // Imgur API
+  client_id: process.env.CLIENT_ID,
+  api_key: process.env.API_KEY,
 };
 
 export default config;

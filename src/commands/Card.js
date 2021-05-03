@@ -3,6 +3,7 @@ const fetch = require('node-fetch');
 import config from 'config';
 
 import { manamoji } from 'utils/manamoji';
+import { MessageAttachment } from 'discord.js'
 
 const Card = {
   name: 'card',
@@ -44,12 +45,24 @@ const Card = {
           const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${cardName}\"`);
 
           const data = JSON.parse(cardPrices.toString());
-          const imageStream = Buffer.from(data.graph, 'base64');
+          const imageStream = new Buffer.from(data.graph, 'base64');
+
+          let usd = (data.prices?.usd > -1) ? data.prices?.usd : '—'
+          let usd_foil = (data.prices?.usd_foil > -1) ? data.prices?.usd_foil : '—'
+          let eur = (data.prices?.eur > -1) ? data.prices?.eur : '—'
+          let eur_foil = (data.prices?.eur_foil > -1) ? data.prices?.eur_foil : '—'
+          let tix = (data.prices?.tix > -1) ? data.prices?.tix : '—'
+          let tix_foil = (data.prices?.tix_foil > -1) ? data.prices?.tix_foil : '—'
 
           return {
             title: `Price History for ${data.matchedName}`,
-            // files: [{ name : "graph.png", attachment : imageStream }],
-            // image: { url: 'attachment://graph.png' },
+            fields: [
+              { name: 'USD', value: `$**${ usd }** | $**${ usd_foil }**`, inline: true },
+              { name: 'EUR', value: `€**${ eur }** | €**${ eur_foil }**`, inline: true },
+              { name: 'TIX', value: `**${ tix }** tix | **${ tix_foil }** tix`, inline: true },
+            ],
+            files: [{ name : "graph.png", attachment : `data:image/png;base64,${ data.graph }` }], // imageStream }],
+            image: { url: "attachment://graph.png" },
             footer: {
               "icon_url" : "https://pbs.twimg.com/profile_images/482510609934602240/ZTMbGoMr_200x200.png",
               "text" : "Price history data sourced from MTGStocks.com"
