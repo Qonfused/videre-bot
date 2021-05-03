@@ -25,15 +25,10 @@ class Bot extends Client {
     // Move attached files from within the embed object to content.files attribute
     if (content.options?.embed.files) {
 
-      console.log(content);
-
       content.files = content.options.embed.files;
       delete content.options.embed.files;
 
       content.resolveData();
-
-      console.log(content);
-
       return content;
     }
 

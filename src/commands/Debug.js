@@ -40,7 +40,7 @@ const Debug = {
         title: 'Debug',
         fields: [
           // Uptime since 'Ready' status
-          { name: 'Current Uptime', value: `\`${ uptime }\``, inline: false },
+          { name: 'Current Uptime', value: uptime, inline: false },
           // Various cluster information
           { name: 'PID', value: `\`${ process.pid }\``, inline: true },
           { name: 'Cluster', value: `\`${ 0 }\``, inline: true },
