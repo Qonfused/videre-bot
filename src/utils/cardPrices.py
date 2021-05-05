@@ -19,7 +19,6 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
 
         matchedName = autocompleteAPI.json()["name"].replace("/", "%2F")
 
-        scryfall_uri = autocompleteAPI.json()["scryfall_uri"]
         purchase_uris = autocompleteAPI.json()["purchase_uris"]
     else:
         matchedName = cardname.replace("/", "%2F")
@@ -68,10 +67,11 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
 
         # Write plot to bytes buffer
         buffer = io.BytesIO()
-        plt.savefig(buffer, format = "png")
-        buffer.seek(0)
 
-        return buffer
+        plt.savefig(buffer, format = "png")
+        plt.close()
+
+        return base64.b64encode(buffer.getvalue()).decode("utf-8").replace("\n", "")
 
     # Call plotting function
     plt_IObytes = render_fig_table(
@@ -92,7 +92,6 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
     if match == "fuzzy":
         data["matchedName"] = matchedName
         data["urls"] = {
-            "Scryfall" : scryfall_uri,
             "Cardhoarder" : purchase_uris["cardhoarder"],
             "Cardmarket" : purchase_uris["cardmarket"],
             "TCGPlayer" : purchase_uris["tcgplayer"],
@@ -100,10 +99,14 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
         }
 
         data["prices"] = autocompleteAPI.json()["prices"]
+        data["set"] = autocompleteAPI.json()["set"]
+        data["set_name"] = autocompleteAPI.json()["set_name"]
+        data["png"] = autocompleteAPI.json()['image_uris']["png"]
+        data["mana_cost"] = autocompleteAPI.json()['mana_cost']
     else:
         data["urls"] = { 'MTGStocks': f"https://www.mtgstocks.com/prints/{ slug }" }
 
-    data["graph"] = base64.b64encode(plt_IObytes.read()).decode("utf-8")
+    data["graph"] = plt_IObytes
     data["data"] = combined_prices.reset_index().to_dict(orient = "list")
     data["table"] = tabulate(
         combined_prices,

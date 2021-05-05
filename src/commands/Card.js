@@ -1,9 +1,10 @@
 import chalk from 'chalk';
-const fetch = require('node-fetch');
 import config from 'config';
+const fetch = require('node-fetch');
+const Discord = require('discord.js');
 
 import { manamoji } from 'utils/manamoji';
-import { MessageAttachment } from 'discord.js'
+
 
 const Card = {
   name: 'card',
@@ -24,6 +25,7 @@ const Card = {
   ],
   async execute({ client, options }) {
     const [cardName, prices] = options;
+    const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
     try {
       if (prices != true) {
         const scryfallURL = 'https://api.scryfall.com/cards/named?format=text&fuzzy=';
@@ -34,8 +36,6 @@ const Card = {
         const cardText = (await response.text())
           .replace(/(\([^)]+\))/g, '*$1*');
 
-        const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
-
         return {
           description: manamoji(client.guilds.resolve(config.emojiGuild), cardText),
           ephemeral: true,
@@ -45,34 +45,31 @@ const Card = {
           const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${cardName}\"`);
 
           const data = JSON.parse(cardPrices.toString());
+
           const imageStream = new Buffer.from(data.graph, 'base64');
+          const attachment = new Discord.MessageAttachment(imageStream, 'graph.png');
 
-          let usd = (data.prices?.usd > -1) ? data.prices?.usd : '—'
-          let usd_foil = (data.prices?.usd_foil > -1) ? data.prices?.usd_foil : '—'
-          let eur = (data.prices?.eur > -1) ? data.prices?.eur : '—'
-          let eur_foil = (data.prices?.eur_foil > -1) ? data.prices?.eur_foil : '—'
-          let tix = (data.prices?.tix > -1) ? data.prices?.tix : '—'
-          let tix_foil = (data.prices?.tix_foil > -1) ? data.prices?.tix_foil : '—'
+          function evalPrice(item) { return typeof item === 'object' ? '—' : (item > -1 ? item : '—') }
 
-          return {
-            title: `Price History for ${data.matchedName}`,
-            fields: [
-              { name: 'USD', value: `$**${ usd }** | $**${ usd_foil }**`, inline: true },
-              { name: 'EUR', value: `€**${ eur }** | €**${ eur_foil }**`, inline: true },
-              { name: 'TIX', value: `**${ tix }** tix | **${ tix_foil }** tix`, inline: true },
-            ],
-            files: [{ name : "graph.png", attachment : `data:image/png;base64,${ data.graph }` }], // imageStream }],
-            image: { url: "attachment://graph.png" },
-            footer: {
-              "icon_url" : "https://pbs.twimg.com/profile_images/482510609934602240/ZTMbGoMr_200x200.png",
-              "text" : "Price history data sourced from MTGStocks.com"
-            },
-          };
+          return new Discord.MessageEmbed()
+          	.setColor('#3498DB')
+          	.setTitle(
+              manamoji(
+                client.guilds.resolve(config.emojiGuild),
+                `Price History for ${data.matchedName} ${data.mana_cost}`
+            ))
+            .setDescription(`Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`)
+          	.setThumbnail(data.png)
+            .addField('USD', `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, true)
+            .addField('EUR', `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, true)
+            .addField('TIX', `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, true)
+            .attachFiles(attachment)
+          	.setImage('attachment://graph.png')
+          	.setFooter(
+              'Price history data sourced from MTGStocks.com',
+              'https://pbs.twimg.com/profile_images/482510609934602240/ZTMbGoMr_200x200.png'
+            );
 
-          // return {
-          //   description: `**Price History for ${data.matchedName}**\n\`\`\`diff\n${data.table}\n\`\`\``,
-          //   ephemeral: true,
-          // };
       }
     } catch (error) {
       // Send full error stack to console

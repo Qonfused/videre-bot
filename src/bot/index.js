@@ -22,16 +22,6 @@ class Bot extends Client {
       );
     }
 
-    // Move attached files from within the embed object to content.files attribute
-    if (content.options?.embed.files) {
-
-      content.files = content.options.embed.files;
-      delete content.options.embed.files;
-
-      content.resolveData();
-      return content;
-    }
-
     // Note that embeds and attachments are currently not supported.
     // See the below issue for more information:
     // https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
