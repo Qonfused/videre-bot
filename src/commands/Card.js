@@ -84,31 +84,12 @@ const Card = {
             },
             files: [imageStream],
           });
-          message.resolveData();
+          await message.resolveData();
 
           const channel = client.channels.cache.get(interaction.channel_id);
-          channel.send(message);
+          await channel.send(message);
 
           return `Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`;
-
-          // return new Discord.MessageEmbed()
-          // 	.setColor('#3498DB')
-          // 	.setTitle(
-          //     manamoji(
-          //       client.guilds.resolve(config.emojiGuild),
-          //       `Price History for ${data.matchedName} ${data.mana_cost}`
-          //   ))
-          //   .setDescription(`Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`)
-          // 	.setThumbnail(data.png)
-          //   .addField('USD', `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, true)
-          //   .addField('EUR', `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, true)
-          //   .addField('TIX', `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, true)
-          //   .attachFiles(attachment)
-          // 	.setImage('attachment://graph.png')
-          // 	.setFooter(
-          //     'Price history data sourced from MTGStocks.com',
-          //     'https://pbs.twimg.com/profile_images/482510609934602240/ZTMbGoMr_200x200.png'
-          //   );
 
       }
     } catch (error) {
