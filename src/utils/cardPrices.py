@@ -11,17 +11,7 @@ import sys, io, base64
 from tabulate import tabulate
 
 # Generate and return card price history
-def getPriceHistory(cardname, set = "", match = "fuzzy", time_interval = 7):
-
-    if match == "fuzzy":
-        # Get fuzzy matched name and uri from Scryfall
-        autocompleteAPI = requests.get(f"https://api.scryfall.com/cards/named?fuzzy={ cardname + set }")
-
-        matchedName = autocompleteAPI.json()["name"].replace("/", "%2F")
-
-        purchase_uris = autocompleteAPI.json()["purchase_uris"]
-    else:
-        matchedName = cardname.replace("/", "%2F")
+def getPriceHistory(matchedName, set = "", time_interval = 7):
 
     # Get MTGStocks ID/URI and matched cardname
     mtgstocksAPI = requests.get(f"https://api.mtgstocks.com/search/autocomplete/{ matchedName }")
@@ -43,6 +33,7 @@ def getPriceHistory(cardname, set = "", match = "fuzzy", time_interval = 7):
         lambda x,y: pd.merge(x,y, on = "Date", how = "outer"),
         [low, average, market, high, foil, market_foil]
     )
+    combined_prices = combined_prices.sort_values(by = ["Date"], ascending = True)
     combined_prices["Date"] = pd.to_datetime(combined_prices["Date"], unit = "ms")
     combined_prices["Date"] = combined_prices["Date"].apply(lambda x: x.strftime("%Y-%m-%d"))
 
@@ -80,7 +71,7 @@ def getPriceHistory(cardname, set = "", match = "fuzzy", time_interval = 7):
         combined_prices.columns,
         xlabel = "Dates", ylabel = "TCGplayer Price (USD $)",
         title = f"Price History for { name }",
-        fig_width = 11, fig_height = 4,
+        fig_width = 9, fig_height = 3,
     )
 
     # Format currency for table output
@@ -89,26 +80,9 @@ def getPriceHistory(cardname, set = "", match = "fuzzy", time_interval = 7):
 
     # Format json output
     data = {}
-
-    if match == "fuzzy":
-        data["matchedName"] = matchedName
-        data["urls"] = {
-            "Cardhoarder" : purchase_uris["cardhoarder"],
-            "Cardmarket" : purchase_uris["cardmarket"],
-            "TCGPlayer" : purchase_uris["tcgplayer"],
-            "MTGStocks": f"https://www.mtgstocks.com/prints/{ slug }"
-        }
-
-        data["prices"] = autocompleteAPI.json()["prices"]
-        data["set"] = autocompleteAPI.json()["set"]
-        data["set_name"] = autocompleteAPI.json()["set_name"]
-        data["png"] = autocompleteAPI.json()['image_uris']["png"]
-        data["mana_cost"] = autocompleteAPI.json()['mana_cost']
-    else:
-        data["urls"] = { 'MTGStocks': f"https://www.mtgstocks.com/prints/{ slug }" }
-
     data["graph"] = plt_IObytes
     data["data"] = combined_prices.reset_index().to_dict(orient = "list")
+    data["url"] = f"https://www.mtgstocks.com/prints/{ slug }"
     data["table"] = tabulate(
         combined_prices,
         tablefmt = "rst",
@@ -140,5 +114,5 @@ def get_argv(arg, default = None):
 CARDNAME = get_argv("cardname")
 SET = get_argv("set", "")
 
-print(getPriceHistory(CARDNAME, SET))
+print(getPriceHistory(CARDNAME.replace("/", "%2F"), SET))
 sys.stdout.flush()

@@ -11,7 +11,7 @@ const Event = {
       console.error(chalk.red(`/event >> ${error.stack}`));
       // Send brief error message in Discord response
       return {
-        title: 'Event',
+        title: 'Error',
         description: `An error occured while retrieving events.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
         ephemeral: true,

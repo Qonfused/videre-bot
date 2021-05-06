@@ -33,71 +33,148 @@ const Card = {
     const [cardName, prices, set] = options;
     const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
     try {
-      if (prices != true) {
-        let scryfallURL = 'https://api.scryfall.com/cards/named?format=text&fuzzy=';
-        if (set) scryfallURL += `&set=${set}`;
+      let scryfallURL = 'https://api.scryfall.com/cards/named?fuzzy=';
+      if (set) scryfallURL += `&set=${set}`;
 
-        const response = await fetch(`${scryfallURL}${cardName}`);
-        if (response.status !== 200) throw new Error(`${response.status} — ${response.statusText}`);
+      const response = await fetch(`${scryfallURL}${cardName}`);
+      if (response.status !== 200) throw new Error(`${response.status} — ${response.statusText}`);
 
-        const cardText = (await response.text())
-          .replace(/(\([^)]+\))/g, '*$1*');
+      let data = await response.json();
 
-        return {
-          description: manamoji(client.guilds.resolve(config.emojiGuild), cardText),
-          ephemeral: true,
-        };
-      } else if (prices == true) {
+      const cardTitle = (!data?.card_faces) ? manamoji(
+        client.guilds.resolve(config.emojiGuild),
+          [data.name, data.mana_cost].join(' ')
+        ) : manamoji(
+        client.guilds.resolve(config.emojiGuild), [
+          `${data.card_faces[0].name} ${data.card_faces[0].mana_cost}`,
+          `${data.card_faces[1].name} ${data.card_faces[1].mana_cost}`
+        ].join(' // '));
 
-          const child_process = require("child_process");
-          const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${cardName}\" --set \"${ set !== void 0 ? '&set=' + set : '' }\"`);
+      const thumbnailImage = (!data?.card_faces) ? data.image_uris.png : data.card_faces[0].image_uris.png;
 
-          const data = JSON.parse(cardPrices.toString());
+      const footerText = [
+          `🖌 ${data.artist}`,
+          `${data.set.toUpperCase()} (${data.lang.toUpperCase()}) #${data.collector_number}`,
+          data.rarity.replace(/^\w/, (c) => c.toUpperCase())
+        ].join(' • ');
 
-          const imageStream = new Buffer.from(data.graph, 'base64');
-          const attachment = new Discord.MessageAttachment(imageStream, 'graph.png');
+      if (prices !== true) {
 
-          function evalPrice(item) { return typeof item === 'object' ? '—' : (item > -1 ? item : '—') }
+        if (!data?.card_faces) {
+          let cardText = manamoji(
+            client.guilds.resolve(config.emojiGuild),
+            [data.type_line, data.oracle_text].join('\n')
+            .replace(/(\([^)]+\))/g, '*$1*')
+          )
 
-          const message = new Discord.APIMessage(client.channels.resolve(interaction.channel_id), {
-            embed: {
-              color: '#3498DB',
-              title: manamoji(
-                client.guilds.resolve(config.emojiGuild),
-                `Price History for ${data.matchedName} ${data.mana_cost}`
-              ),
-              fields: [
-                { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
-                { name: 'EUR', value: `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, inline: true },
-                { name: 'TIX', value: `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, inline: true },
-              ],
-              thumbnail: {
-                url: data.png,
-              },
-              image: {
-                url: 'attachment://file.jpg',
-              },
-              footer: {
-                "icon_url" : "https://pbs.twimg.com/profile_images/482510609934602240/ZTMbGoMr_200x200.png",
-                "text" : "Price history data sourced from MTGStocks.com"
-              },
+          if (data?.flavor_text) cardText += `\n*${data.flavor_text}*`;
+          if (data?.power && data?.toughness) cardText += `\n${data.power}${data.toughness}`;
+          if (data?.loyalty) cardText += `\nLoyalty: ${data.loyalty}`;
+
+          return {
+            title: cardTitle,
+            url: data.scryfall_uri,
+            description: cardText,
+            thumbnail: {
+              url: thumbnailImage
             },
-            files: [imageStream],
-          });
-          await message.resolveData();
+            footer: {
+              text: footerText
+            },
+          };
+        } else {
+          let cardText = manamoji(
+            client.guilds.resolve(config.emojiGuild),
+            `**${data.card_faces[0].name}** ${data.card_faces[0].mana_cost}`
+          )
 
-          const channel = client.channels.cache.get(interaction.channel_id);
-          await channel.send(message);
+          cardText += "\n" + manamoji(
+            client.guilds.resolve(config.emojiGuild),
+            [data.card_faces[0].type_line, data.card_faces[0].oracle_text].join('\n')
+            .replace(/(\([^)]+\))/g, '*$1*')
+          )
 
-          return `Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`;
+          if (data.card_faces[0]?.flavor_text) cardText += `\n*${data.card_faces[0].flavor_text}*`;
+          if (data.card_faces[0]?.power && data.card_faces[0]?.toughness) cardText += `\n${data.card_faces[0].power}/${data.card_faces[0].toughness}`;
+          if (data.card_faces[0]?.loyalty) cardText += `\nLoyalty: ${data.card_faces[0].loyalty}`;
+
+          cardText += "\n---------\n" + manamoji(
+            client.guilds.resolve(config.emojiGuild),
+            `**${data.card_faces[1].name}** ${data.card_faces[1].mana_cost}`
+          )
+
+          cardText += "\n" + manamoji(
+            client.guilds.resolve(config.emojiGuild),
+            [data.card_faces[1].type_line, data.card_faces[1].oracle_text].join('\n')
+            .replace(/(\([^)]+\))/g, '*$1*')
+          )
+
+          if (data.card_faces[1]?.flavor_text) cardText += `\n*${data.card_faces[1].flavor_text}*`;
+          if (data.card_faces[1]?.power && data.card_faces[1]?.toughness) cardText += `\n${data.card_faces[1].power}/${data.card_faces[1].toughness}`;
+          if (data.card_faces[1]?.loyalty) cardText += `\nLoyalty: ${data.card_faces[1].loyalty}`;
+
+          return {
+            title: cardTitle,
+            url: data.scryfall_uri,
+            description: cardText,
+            thumbnail: {
+              url: thumbnailImage
+            },
+            footer: {
+              text: footerText
+            },
+          };
+        }
 
       }
+
+      const child_process = require("child_process");
+      const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${data.name.replace('/', '%2F')}\" --set \"${ set !== void 0 ? '&set=' + set : '' }\"`);
+
+      const json = JSON.parse(cardPrices.toString());
+      const imageStream = new Buffer.from(json.graph, 'base64');
+
+      const description = `Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`;
+
+      function evalPrice(item) {
+        return typeof item === 'object' ? '—' : (item > -1 ? item : '—')
+      }
+
+      const message = new Discord.APIMessage(client.channels.resolve(interaction.channel_id), {
+        embed: {
+          title: `Price History for ${cardTitle}`,
+          url: json.url,
+          fields: [
+            { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
+            { name: 'EUR', value: `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, inline: true },
+            { name: 'TIX', value: `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, inline: true },
+          ],
+          thumbnail: {
+            url: thumbnailImage,
+          },
+          image: {
+            url: 'attachment://file.jpg',
+          },
+          footer: {
+            "text" : footerText,
+          },
+          color: '#3498DB',
+        },
+        files: [imageStream],
+      });
+      await message.resolveData();
+
+      const channel = await client.channels.cache.get(interaction.channel_id);
+      await channel.send(message);
+
+      return description;
+
     } catch (error) {
       // Send full error stack to console
       console.error(chalk.red(`/card >> ${error.stack}`));
       // Send brief error message in Discord response
       return {
-        title: 'Card',
+        title: 'Error',
         description: `An error occured while retrieving card data.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
         ephemeral: true,

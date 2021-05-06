@@ -56,7 +56,7 @@ const Debug = {
       console.error(chalk.red(`/debug >> ${ error.stack }`));
       // Send brief error message in Discord response
       return {
-        title: 'Debug',
+        title: 'Error',
         description: `An error occured while retrieving this bot's debug info.\n**>>** \`${ error.message }\``,
         color: 0xe74c3c,
         ephemeral: true,

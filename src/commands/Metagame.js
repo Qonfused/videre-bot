@@ -21,7 +21,7 @@ const Metagame = {
       console.error(chalk.red(`/metagame >> ${error.stack}`));
       // Send brief error message in Discord response
       return {
-        title: 'Metagame',
+        title: 'Error',
         description: `An error occured while retrieving metagame data.\n**>>** \`${error.message}\``,
         color: 0xe74c3c,
         ephemeral: true,
