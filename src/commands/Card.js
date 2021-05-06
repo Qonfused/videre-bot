@@ -22,13 +22,20 @@ const Card = {
       type: 'boolean',
       required: false,
     },
+    {
+      name: 'set',
+      description: 'A specific set to limit a search to',
+      type: 'string',
+      required: false,
+    },
   ],
-  async execute({ client, options }) {
-    const [cardName, prices] = options;
+  async execute({ interaction, client, options }) {
+    const [cardName, prices, set] = options;
     const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
     try {
       if (prices != true) {
-        const scryfallURL = 'https://api.scryfall.com/cards/named?format=text&fuzzy=';
+        let scryfallURL = 'https://api.scryfall.com/cards/named?format=text&fuzzy=';
+        if (set) scryfallURL += `&set=${set}`;
 
         const response = await fetch(`${scryfallURL}${cardName}`);
         if (response.status !== 200) throw new Error(`${response.status} — ${response.statusText}`);
@@ -41,8 +48,9 @@ const Card = {
           ephemeral: true,
         };
       } else if (prices == true) {
+
           const child_process = require("child_process");
-          const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${cardName}\"`);
+          const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${cardName}\" --set \"${ set !== void 0 ? '&set=' + set : '' }\"`);
 
           const data = JSON.parse(cardPrices.toString());
 
@@ -51,24 +59,56 @@ const Card = {
 
           function evalPrice(item) { return typeof item === 'object' ? '—' : (item > -1 ? item : '—') }
 
-          return new Discord.MessageEmbed()
-          	.setColor('#3498DB')
-          	.setTitle(
-              manamoji(
+          const message = new Discord.APIMessage(client.channels.resolve(interaction.channel_id), {
+            embed: {
+              color: '#3498DB',
+              title: manamoji(
                 client.guilds.resolve(config.emojiGuild),
                 `Price History for ${data.matchedName} ${data.mana_cost}`
-            ))
-            .setDescription(`Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`)
-          	.setThumbnail(data.png)
-            .addField('USD', `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, true)
-            .addField('EUR', `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, true)
-            .addField('TIX', `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, true)
-            .attachFiles(attachment)
-          	.setImage('attachment://graph.png')
-          	.setFooter(
-              'Price history data sourced from MTGStocks.com',
-              'https://pbs.twimg.com/profile_images/482510609934602240/ZTMbGoMr_200x200.png'
-            );
+              ),
+              fields: [
+                { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
+                { name: 'EUR', value: `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, inline: true },
+                { name: 'TIX', value: `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, inline: true },
+              ],
+              thumbnail: {
+                url: data.png,
+              },
+              image: {
+                url: 'attachment://file.jpg',
+              },
+              footer: {
+                "icon_url" : "https://pbs.twimg.com/profile_images/482510609934602240/ZTMbGoMr_200x200.png",
+                "text" : "Price history data sourced from MTGStocks.com"
+              },
+            },
+            files: [imageStream],
+          });
+          message.resolveData();
+
+          const channel = client.channels.cache.get(interaction.channel_id);
+          channel.send(message);
+
+          return `Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`;
+
+          // return new Discord.MessageEmbed()
+          // 	.setColor('#3498DB')
+          // 	.setTitle(
+          //     manamoji(
+          //       client.guilds.resolve(config.emojiGuild),
+          //       `Price History for ${data.matchedName} ${data.mana_cost}`
+          //   ))
+          //   .setDescription(`Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`)
+          // 	.setThumbnail(data.png)
+          //   .addField('USD', `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, true)
+          //   .addField('EUR', `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, true)
+          //   .addField('TIX', `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, true)
+          //   .attachFiles(attachment)
+          // 	.setImage('attachment://graph.png')
+          // 	.setFooter(
+          //     'Price history data sourced from MTGStocks.com',
+          //     'https://pbs.twimg.com/profile_images/482510609934602240/ZTMbGoMr_200x200.png'
+          //   );
 
       }
     } catch (error) {

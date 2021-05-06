@@ -22,19 +22,21 @@ class Bot extends Client {
       );
     }
 
-    // Note that embeds and attachments are currently not supported.
-    // See the below issue for more information:
-    // https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
-    if (content.options?.ephemeral === true || content.options?.embed.ephemeral === true) {
-      if (content.options?.embed) {
-        content.options.content = content.options.embed?.description;
+    if (content.options?.embed) {
+      // Note that embeds and attachments are currently not supported.
+      // See the below issue for more information:
+      // https://github.com/discord/discord-api-docs/issues/2318#issuecomment-761132524
+      if (content.options?.ephemeral === true || content.options?.embed.ephemeral === true) {
+        if (content.options?.embed) {
+          content.options.content = content.options.embed?.description;
+        }
+        delete content.options.embed;
+
+        content.resolveData();
+        content.data.flags = INTERACTION_RESPONSE_FLAGS.EPHEMERAL;
+
+        return content;
       }
-      delete content.options.embed;
-
-      content.resolveData();
-      content.data.flags = INTERACTION_RESPONSE_FLAGS.EPHEMERAL;
-
-      return content;
     }
 
     return content.resolveData();

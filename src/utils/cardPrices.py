@@ -11,11 +11,11 @@ import sys, io, base64
 from tabulate import tabulate
 
 # Generate and return card price history
-def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
+def getPriceHistory(cardname, set = "", match = "fuzzy", time_interval = 7):
 
     if match == "fuzzy":
         # Get fuzzy matched name and uri from Scryfall
-        autocompleteAPI = requests.get(f"https://api.scryfall.com/cards/named?fuzzy={ cardname }")
+        autocompleteAPI = requests.get(f"https://api.scryfall.com/cards/named?fuzzy={ cardname + set }")
 
         matchedName = autocompleteAPI.json()["name"].replace("/", "%2F")
 
@@ -138,6 +138,7 @@ def get_argv(arg, default = None):
 
 # argv parameters
 CARDNAME = get_argv("cardname")
+SET = get_argv("set", "")
 
-print(getPriceHistory(CARDNAME))
+print(getPriceHistory(CARDNAME, SET))
 sys.stdout.flush()
