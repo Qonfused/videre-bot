@@ -63,12 +63,13 @@ def getPriceHistory(cardname, match = "fuzzy", time_interval = 7):
             ax.legend()
             ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel)
-            #ax.set_title(title)
+            ax.set_title(title)
 
         # Write plot to bytes buffer
         buffer = io.BytesIO()
 
-        plt.savefig(buffer, format = "png")
+        plt.tight_layout(pad=1.0, w_pad=1.5, h_pad=1.0)
+        plt.savefig(buffer, format = "png", dpi = 100)
         plt.close()
 
         return base64.b64encode(buffer.getvalue()).decode("utf-8").replace("\n", "")
