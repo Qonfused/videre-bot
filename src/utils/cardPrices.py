@@ -12,24 +12,31 @@ from tabulate import tabulate
 
 # Generate and return card price history
 def getPriceHistory(matchedName, set, time_interval = 7):
+    global card_slug
+    try:
+        def findItem(data, item, match, attribute):
+            for i in range(len(data)):
+                if data[i][match] == item:
+                    return data[i][attribute]
+                    break
+                if data[i][match] == item.split(" // ")[0]:
+                    return data[i][attribute]
+                    break
 
-    def findItem(data, item, match, attribute):
-        for i in range(len(data)):
-            if data[i][match] == item:
-                return data[i][attribute]
-                break
+        set_id = findItem(
+            data = requests.get("http://api.mtgstocks.com/card_sets").json(),
+            item = set, match = 'abbreviation',
+            attribute = 'id'
+        )
 
-    set_id = findItem(
-        data = requests.get("http://api.mtgstocks.com/card_sets").json(),
-        item = set, match = 'abbreviation',
-        attribute = 'id'
-    )
-
-    card_slug = findItem(
-        data = requests.get(f"https://api.mtgstocks.com/card_sets/{set_id}").json()['prints'],
-        item = matchedName.split("//")[0], match = 'name',
-        attribute = 'slug'
-    )
+        card_slug = findItem(
+            data = requests.get(f"https://api.mtgstocks.com/card_sets/{set_id}").json()['prints'],
+            item = matchedName, match = 'name',
+            attribute = 'slug'
+        )
+    except:
+        mtgstocksAPI = requests.get(f"https://api.mtgstocks.com/search/autocomplete/{ matchedName.split('//')[0] }")
+        id, name, card_slug = mtgstocksAPI.json()[0].values()
 
     # Get full historical pricing data
     pricesAPI = requests.get(f"https://api.mtgstocks.com/prints/{ card_slug }/prices")
