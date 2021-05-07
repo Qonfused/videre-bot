@@ -11,14 +11,29 @@ import sys, io, base64
 from tabulate import tabulate
 
 # Generate and return card price history
-def getPriceHistory(matchedName, set = "", time_interval = 7):
+def getPriceHistory(matchedName, set, time_interval = 7):
 
-    # Get MTGStocks ID/URI and matched cardname
-    mtgstocksAPI = requests.get(f"https://api.mtgstocks.com/search/autocomplete/{ matchedName }")
-    id, name, slug = mtgstocksAPI.json()[0].values()
+    def findItem(data, item, match, attribute):
+        for i in range(len(data)):
+            if data[i][match] == item:
+                print(data[i][attribute])
+                return data[i][attribute]
+                break
+
+    set_id = findItem(
+        data = requests.get("http://api.mtgstocks.com/card_sets").json(),
+        item = set, match = 'abbreviation',
+        attribute = 'id'
+    )
+
+    card_slug = findItem(
+        data = requests.get(f"https://api.mtgstocks.com/card_sets/{set_id}").json()['prints'],
+        item = matchedName.split("//")[0], match = 'name',
+        attribute = 'slug'
+    )
 
     # Get full historical pricing data
-    pricesAPI = requests.get(f"https://api.mtgstocks.com/prints/{ id }/prices")
+    pricesAPI = requests.get(f"https://api.mtgstocks.com/prints/{ card_slug }/prices")
 
     # Extract prices by category
     low = pd.DataFrame(pricesAPI.json()["low"], columns = ["Date", "Low"])
@@ -70,7 +85,7 @@ def getPriceHistory(matchedName, set = "", time_interval = 7):
         combined_prices,
         combined_prices.columns,
         xlabel = "Dates", ylabel = "TCGplayer Price (USD $)",
-        title = f"Price History for { name }",
+        title = f"Price History for { matchedName }",
         fig_width = 9, fig_height = 3,
     )
 
@@ -81,13 +96,13 @@ def getPriceHistory(matchedName, set = "", time_interval = 7):
     # Format json output
     data = {}
     data["graph"] = plt_IObytes
-    data["data"] = combined_prices.reset_index().to_dict(orient = "list")
-    data["url"] = f"https://www.mtgstocks.com/prints/{ slug }"
-    data["table"] = tabulate(
-        combined_prices,
-        tablefmt = "rst",
-        headers = ["Date", "Low", "Average", "Market", "High", "Foil", "Market Foil"]
-    )
+    # data["data"] = combined_prices.reset_index().to_dict(orient = "list")
+    data["url"] = f"https://www.mtgstocks.com/prints/{ card_slug }"
+    # data["table"] = tabulate(
+    #     combined_prices,
+    #     tablefmt = "rst",
+    #     headers = ["Date", "Low", "Average", "Market", "High", "Foil", "Market Foil"]
+    # )
 
     return json.dumps(data)
 
@@ -96,8 +111,8 @@ def get_args(message, command):
     self = re.compile(" --(.*?) ").split(message[len(command):])
     for i in range(len(self)):
         self[i:i+1] = re.compile(" -").split(self[i])
-    for i in range(len(self)-1):
-        self[i+1] = re.sub(r"-", "", self[i+1])
+    # for i in range(len(self)-1):
+    #     self[i+1] = re.sub(r"-", "", self[i+1])
     return self
 
 # Helper function for setting flags via argv
@@ -112,7 +127,12 @@ def get_argv(arg, default = None):
 
 # argv parameters
 CARDNAME = get_argv("cardname")
-SET = get_argv("set", "")
+SET = get_argv("set")
 
-print(getPriceHistory(CARDNAME.replace("/", "%2F"), SET))
+try:
+    json = getPriceHistory(CARDNAME, SET)
+    print(json)
+except:
+    print("")
+
 sys.stdout.flush()
