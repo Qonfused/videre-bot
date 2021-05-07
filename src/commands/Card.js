@@ -63,13 +63,13 @@ const Card = {
         if (!data?.card_faces) {
           let cardText = manamoji(
             client.guilds.resolve(config.emojiGuild),
-            [data.type_line, data.oracle_text].join('\n')
+            [data.type_line, data.oracle_text.replace(/\*/g, '\\*')].join('\n')
             .replace(/(\([^)]+\))/g, '*$1*')
           )
 
-          if (data?.flavor_text) cardText += `\n*${data.flavor_text}*`;
-          if (data?.power && data?.toughness) cardText += `\n${data.power}${data.toughness}`;
-          if (data?.loyalty) cardText += `\nLoyalty: ${data.loyalty}`;
+          if (data?.flavor_text) cardText += `\n*${data.flavor_text.replace(/\*/g, '')}*`;
+          if (data?.power && data?.toughness) cardText += `\n${data.power.replace(/\*/g, '\\*')}/${data.toughness.replace(/\*/g, '\\*')}`;
+          if (data?.loyalty) cardText += `\nLoyalty: ${data.loyalty.replace(/\*/g, '\\*')}`;
 
           return {
             title: cardTitle,
@@ -91,12 +91,13 @@ const Card = {
           cardText += "\n" + manamoji(
             client.guilds.resolve(config.emojiGuild),
             [data.card_faces[0].type_line, data.card_faces[0].oracle_text].join('\n')
+            .replace(/\*/g, '\\*')
             .replace(/(\([^)]+\))/g, '*$1*')
           )
 
-          if (data.card_faces[0]?.flavor_text) cardText += `\n*${data.card_faces[0].flavor_text}*`;
-          if (data.card_faces[0]?.power && data.card_faces[0]?.toughness) cardText += `\n${data.card_faces[0].power}/${data.card_faces[0].toughness}`;
-          if (data.card_faces[0]?.loyalty) cardText += `\nLoyalty: ${data.card_faces[0].loyalty}`;
+          if (data.card_faces[0]?.flavor_text) cardText += `\n*${data.card_faces[0].flavor_text.replace(/\*/g, '')}*`;
+          if (data.card_faces[0]?.power && data.card_faces[0]?.toughness) cardText += `\n${data.card_faces[0].power.replace(/\*/g, '\\*')}/${data.card_faces[0].toughness.replace(/\*/g, '\\*')}`;
+          if (data.card_faces[0]?.loyalty) cardText += `\nLoyalty: ${data.card_faces[0].loyalty.replace(/\*/g, '\\*')}`;
 
           cardText += "\n---------\n" + manamoji(
             client.guilds.resolve(config.emojiGuild),
@@ -106,12 +107,13 @@ const Card = {
           cardText += "\n" + manamoji(
             client.guilds.resolve(config.emojiGuild),
             [data.card_faces[1].type_line, data.card_faces[1].oracle_text].join('\n')
+            .replace(/\*/g, '\\*')
             .replace(/(\([^)]+\))/g, '*$1*')
           )
 
-          if (data.card_faces[1]?.flavor_text) cardText += `\n*${data.card_faces[1].flavor_text}*`;
-          if (data.card_faces[1]?.power && data.card_faces[1]?.toughness) cardText += `\n${data.card_faces[1].power}/${data.card_faces[1].toughness}`;
-          if (data.card_faces[1]?.loyalty) cardText += `\nLoyalty: ${data.card_faces[1].loyalty}`;
+          if (data.card_faces[1]?.flavor_text) cardText += `\n*${data.card_faces[1].flavor_text.replace(/\*/g, '\\*')}*`;
+          if (data.card_faces[1]?.power && data.card_faces[1]?.toughness) cardText += `\n${data.card_faces[1].power.replace(/\*/g, '\\*')}/${data.card_faces[1].toughness.replace(/\*/g, '\\*')}`;
+          if (data.card_faces[1]?.loyalty) cardText += `\nLoyalty: ${data.card_faces[1].loyalty.replace(/\*/g, '\\*')}`;
 
           return {
             title: cardTitle,
@@ -140,10 +142,11 @@ const Card = {
         return typeof item === 'object' ? '—' : (item > -1 ? item : '—')
       }
 
-      const message = new Discord.APIMessage(client.channels.resolve(interaction.channel_id), {
+      return new Discord.APIMessage(client.channels.resolve(interaction.channel_id), {
         embed: {
           title: `Price History for ${cardTitle}`,
           url: json.url,
+          description: description,
           fields: [
             { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
             { name: 'EUR', value: `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, inline: true },
@@ -162,12 +165,6 @@ const Card = {
         },
         files: [imageStream],
       });
-      await message.resolveData();
-
-      const channel = await client.channels.cache.get(interaction.channel_id);
-      await channel.send(message);
-
-      return description;
 
     } catch (error) {
       // Send full error stack to console

@@ -40,18 +40,22 @@ class Bot extends Client {
    * @param {String | APIMessage} content Stringified or pre-processed response.
    */
   async send(interaction, content) {
-    const { data } = await this.createAPIMessage(interaction, content);
+    try {
+      const { data } = await this.createAPIMessage(interaction, content);
 
-    const response = await this.api
-      .interactions(interaction.id, interaction.token)
-      .callback.post({
-        data: {
-          type: INTERACTION_RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
-          data,
-        },
-      });
+      const response = await this.api
+        .interactions(interaction.id, interaction.token)
+        .callback.post({
+          data: {
+            type: INTERACTION_RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+            data,
+          },
+        });
 
-    return response;
+      return response;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   // Loads and registers `Client` events from the events folder
