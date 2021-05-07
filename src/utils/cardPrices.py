@@ -56,7 +56,7 @@ def getPriceHistory(matchedName, set, time_interval = 7):
     )
     combined_prices = combined_prices.sort_values(by = ["Date"], ascending = True)
     combined_prices["Date"] = pd.to_datetime(combined_prices["Date"], unit = "ms")
-    combined_prices["Date"] = combined_prices["Date"].apply(lambda x: x.strftime("%Y-%m-%d"))
+    combined_prices["Date"] = combined_prices["Date"].apply(lambda x: x.strftime("%b %d, %Y"))
 
     combined_prices = combined_prices.tail(time_interval).set_index("Date")
 
