@@ -50,7 +50,7 @@ const Card = {
           `${data.card_faces[1].name} ${data.card_faces[1].mana_cost}`
         ].join(' // '));
 
-      const thumbnailImage = (!data?.card_faces[0].image_uris) ? data.image_uris.png : data?.card_faces[0].image_uris.png;
+      const thumbnailImage = !data?.card_faces ? data.image_uris.png : (!data.card_faces[0]?.image_uris ? data.image_uris.png : data.card_faces[0].image_uris.png);
 
       const footerText = [
           `🖌 ${data.artist}`,
