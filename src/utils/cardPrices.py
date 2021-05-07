@@ -16,7 +16,6 @@ def getPriceHistory(matchedName, set, time_interval = 7):
     def findItem(data, item, match, attribute):
         for i in range(len(data)):
             if data[i][match] == item:
-                print(data[i][attribute])
                 return data[i][attribute]
                 break
 

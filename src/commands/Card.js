@@ -133,8 +133,8 @@ const Card = {
       const child_process = require("child_process");
       const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${ data.name }\" --set \"${ data.set.toUpperCase() }\"`);
 
-      const json = (cardPrices.toString()).length > 2 ? JSON.parse(cardPrices.toString()) : {};
-      const imageStream = json.length > 0 ? new Buffer.from(json?.graph, 'base64') : undefined;
+      const json = cardPrices.toString().length > 2 ? JSON.parse(cardPrices.toString()) : {};
+      const imageStream = cardPrices.toString().length > 2 ? new Buffer.from(json?.graph, 'base64') : undefined;
 
       const description = `Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`;
 
@@ -144,7 +144,6 @@ const Card = {
 
       const message = {
         title: `Price History for ${cardTitle}`,
-        url: json?.url,
         description: description,
         fields: [
           { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
@@ -160,8 +159,9 @@ const Card = {
         color: '#3498DB',
       }
 
-      if (imageStream) message.image = { url: 'attachment://file.jpg' };
-      if (imageStream) message.files = [imageStream];
+      if (cardPrices.toString().length > 2) message.url = json?.url;
+      if (cardPrices.toString().length > 2) message.image = { url: 'attachment://file.jpg' };
+      if (cardPrices.toString().length > 2) message.files = [imageStream];
 
       return message;
 
