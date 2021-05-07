@@ -73,7 +73,7 @@ def getPriceHistory(matchedName, set, time_interval = 7):
 
             ax.plot(data[cols], label = category_name.replace(" ($nan)", ""))
             ax.legend()
-            ax.set_xlabel(xlabel)
+            # ax.set_xlabel(xlabel)
             ax.set_ylabel(ylabel)
             # ax.set_title(title)
 
