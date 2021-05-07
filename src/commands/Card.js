@@ -142,29 +142,27 @@ const Card = {
         return typeof item === 'object' ? '—' : (item > -1 ? item : '—')
       }
 
-      return new Discord.APIMessage(client.channels.resolve(interaction.channel_id), {
-        embed: {
-          title: `Price History for ${cardTitle}`,
-          url: json.url,
-          description: description,
-          fields: [
-            { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
-            { name: 'EUR', value: `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, inline: true },
-            { name: 'TIX', value: `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, inline: true },
-          ],
-          thumbnail: {
-            url: thumbnailImage,
-          },
-          image: {
-            url: 'attachment://file.jpg',
-          },
-          footer: {
-            "text" : footerText,
-          },
-          color: '#3498DB',
+      return {
+        title: `Price History for ${cardTitle}`,
+        url: json.url,
+        description: description,
+        fields: [
+          { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
+          { name: 'EUR', value: `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, inline: true },
+          { name: 'TIX', value: `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, inline: true },
+        ],
+        thumbnail: {
+          url: thumbnailImage,
         },
+        image: {
+          url: 'attachment://file.jpg',
+        },
+        footer: {
+          "text" : footerText,
+        },
+        color: '#3498DB',
         files: [imageStream],
-      });
+      }
 
     } catch (error) {
       // Send full error stack to console
@@ -176,7 +174,9 @@ const Card = {
         color: 0xe74c3c,
         ephemeral: true,
       };
-    }
+    }// finally {
+    //   setTimeout(function(){ console.log('finally'); }, 3000);
+    // }
   },
 };
 
