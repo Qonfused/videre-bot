@@ -23,11 +23,8 @@ const RawEvent = {
       const command = client.commands.get(name);
       if (!command) return;
 
-      const output = await command.execute({
-        client,
-        interaction,
-        options: options?.map(({ value }) => value),
-      });
+      const args = options?.map(({ value }) => value);
+      const output = await command.execute({ client, interaction, args });
       if (!output) return;
 
       // Send follow-up response through `WebhookClient`

@@ -8,7 +8,7 @@ import { manamoji } from 'utils/manamoji';
 
 const Card = {
   name: 'card',
-  description: "(WIP) Returns a card by name via Scryfall.",
+  description: "Returns a card by name via Scryfall.",
   options: [
     {
       name: 'name',
@@ -29,15 +29,15 @@ const Card = {
       required: false,
     },
   ],
-  async execute({ interaction, client, options }) {
-    const [cardName, prices, set] = options;
+  async execute({ client, interaction, args }) {
+    const [cardName, prices, set] = args;
     const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
     try {
       let scryfallURL = `https://api.scryfall.com/cards/named?fuzzy=${cardName}`;
       if (set) scryfallURL += `&set=${set}`;
 
       const response = await fetch(scryfallURL);
-      if (response.status !== 200) throw new Error(`${response.status} — ${response.statusText}`);
+      if (response.status !== 200) throw new Error(`The requested card could not be found.`);
 
       let data = await response.json();
 
@@ -165,19 +165,22 @@ const Card = {
 
       return message;
 
-    } catch (error) {
-      // Send full error stack to console
-      console.error(chalk.red(`/card >> ${error.stack}`));
-      // Send brief error message in Discord response
+    }  catch (error) {
+      console.error(
+        chalk.cyan(`[/card]`)+
+        chalk.grey(` cardName: `) + chalk.green(`\"${cardName}\"`)+
+        chalk.grey(` prices: `) + (!prices ? chalk.grey('None') : chalk.yellow(prices))+
+        chalk.grey(` set: `) + (!set ? chalk.grey('None') : chalk.green(`\"${set}\"`))+
+        chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
+      );
       return {
         title: 'Error',
-        description: `An error occured while retrieving card data.\n**>>** \`${error.message}\``,
+        description: error.message,
         color: 0xe74c3c,
         ephemeral: true,
       };
-    }// finally {
-    //   setTimeout(function(){ console.log('finally'); }, 3000);
-    // }
+
+    }
   },
 };
 
