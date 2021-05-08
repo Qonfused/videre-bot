@@ -17,23 +17,30 @@ const Card = {
       required: true,
     },
     {
+      name: 'set',
+      description: 'A specific set to limit a search to',
+      type: 'string',
+      required: false,
+    },
+    {
       name: 'prices',
       description: 'Flag to show card prices and price history instead',
       type: 'boolean',
       required: false,
     },
     {
-      name: 'set',
-      description: 'A specific set to limit a search to',
-      type: 'string',
+      name: 'decks',
+      description: 'Flag to show card matches in archetype decklists instead',
+      type: 'boolean',
       required: false,
     },
   ],
   async execute({ client, args }) {
 
     const cardName = args?.name;
-    const prices = args?.prices;
     const set = args?.set;
+    const prices = args?.prices;
+    const decks = args?.decks;
 
     const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
 
@@ -110,7 +117,7 @@ const Card = {
           data.rarity.replace(/^\w/, (c) => c.toUpperCase())
         ].join(' • ');
 
-      if (prices !== true) {
+      if (prices !== true && decks !== true) {
 
         if (!data?.card_faces) {
           let cardText = manamoji(
@@ -180,53 +187,59 @@ const Card = {
           };
         }
 
+      } else if (decks !== true) {
+
+        const child_process = require("child_process");
+        const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${ data.name }\" --set \"${ data.set.toUpperCase() }\"`);
+
+        const json = cardPrices.toString().length > 2 ? JSON.parse(cardPrices.toString()) : {};
+        const imageStream = cardPrices.toString().length > 2 ? new Buffer.from(json?.graph, 'base64') : {};
+
+        const description = `Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`;
+
+        function evalPrice(item) {
+          return typeof item === 'object' ? '—' : (item > -1 ? item : '—')
+        }
+
+        const message = {
+          title: `Price History for ${cardTitle}`,
+          description: description,
+          fields: [
+            { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
+            { name: 'EUR', value: `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, inline: true },
+            { name: 'TIX', value: `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, inline: true },
+          ],
+          thumbnail: {
+            url: thumbnailImage,
+          },
+          footer: {
+            "text" : footerText,
+          },
+          color: '#3498DB',
+        }
+
+        if (cardPrices.toString().length > 2) {
+          message.url = json?.url;
+          message.image = { url: 'attachment://file.jpg' };
+          message.files = [imageStream];
+        } else {
+          message.description = `No results found for **${data.set_name}** (**${data.set.toUpperCase()}**).`;
+        }
+
+        return message;
+
       }
 
-      const child_process = require("child_process");
-      const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${ data.name }\" --set \"${ data.set.toUpperCase() }\"`);
-
-      const json = cardPrices.toString().length > 2 ? JSON.parse(cardPrices.toString()) : {};
-      const imageStream = cardPrices.toString().length > 2 ? new Buffer.from(json?.graph, 'base64') : {};
-
-      const description = `Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`;
-
-      function evalPrice(item) {
-        return typeof item === 'object' ? '—' : (item > -1 ? item : '—')
-      }
-
-      const message = {
-        title: `Price History for ${cardTitle}`,
-        description: description,
-        fields: [
-          { name: 'USD', value: `$**${ evalPrice(data.prices?.usd) }** | $**${ evalPrice(data.prices?.usd_foil) }**`, inline: true },
-          { name: 'EUR', value: `€**${ evalPrice(data.prices?.eur) }** | €**${ evalPrice(data.prices?.eur_foil) }**`, inline: true },
-          { name: 'TIX', value: `**${ evalPrice(data.prices?.tix) }** tix | **${ evalPrice(data.prices?.tix_foil) }** tix`, inline: true },
-        ],
-        thumbnail: {
-          url: thumbnailImage,
-        },
-        footer: {
-          "text" : footerText,
-        },
-        color: '#3498DB',
-      }
-
-      if (cardPrices.toString().length > 2) {
-        message.url = json?.url;
-        message.image = { url: 'attachment://file.jpg' };
-        message.files = [imageStream];
-      } else {
-        message.description = `No results found for **${data.set_name}** (**${data.set.toUpperCase()}**).`;
-      }
-
-      return message;
+      // Handle decklist results
+      throw new Error("Command still a work in progress.");
 
     }  catch (error) {
       // console.error(
       //   chalk.cyan(`[/card]`)+
       //   chalk.grey(` cardName: `) + chalk.green(`\"${cardName}\"`)+
-      //   chalk.grey(` prices: `) + (!prices ? chalk.white('None') : chalk.yellow(prices))+
       //   chalk.grey(` set: `) + (!set ? chalk.white('None') : chalk.green(`\"${set}\"`))+
+      //   chalk.grey(` prices: `) + (!prices ? chalk.white('None') : chalk.yellow(prices))+
+      //   chalk.grey(` decks: `) + (!decks ? chalk.white('None') : chalk.yellow(decks))+
       //   chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
       // );
       return {
