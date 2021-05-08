@@ -67,11 +67,8 @@ const Card = {
         if (response_2.status !== 200) throw new Error(`No printings for the requested card could be found.`);
         let printings = await response_2.json();
 
-        // Filter unique values
-        function onlyUnique(value, index, self) { return self.indexOf(value) === index; }
-
         // Get and handle invalid set parameter
-        let sets = printings['data'].map(({ set }) => set).filter(onlyUnique);
+        let sets = printings['data'].map(({ set }) => set);
         let message = 'No match was found for the requested card in the specified set.';
         if (sets.length > 0) {
           let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
@@ -232,9 +229,7 @@ const Card = {
             const response_2 = await fetch(data.prints_search_uri);
             let printings = await response_2.json();
 
-            function onlyUnique(value, index, self) { return self.indexOf(value) === index; }
-
-            let sets = printings['data'].map(({ set }) => set).filter(onlyUnique);
+            let sets = printings['data'].map(({ set }) => set);
             if (sets.length > 0) {
               let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
               message.description += `\nHowever, [${sets.length-1} other available printings](${url}) were found.`;
@@ -247,7 +242,7 @@ const Card = {
       }
 
       // Handle decklist results
-      throw new Error("Command still a work in progress.");
+      throw new Error("Decklist data still a work in progress.");
 
     }  catch (error) {
       // console.error(

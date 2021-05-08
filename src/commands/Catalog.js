@@ -5,6 +5,7 @@ import { formats, eventTypes } from 'utils/magic';
 const Catalog = {
   name: 'catalog',
   description: "(WIP) Displays most recent events by format, type, and/or date.",
+  hide: true,
   options: [
     {
       name: 'format',

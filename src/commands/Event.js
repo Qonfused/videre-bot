@@ -3,6 +3,7 @@ import chalk from 'chalk';
 const Event = {
   name: 'event',
   description: "(WIP) Displays an event by name, id, date, or search query.",
+  hide: true,
   // options
   execute({ client, args }) {
     try {

@@ -4,6 +4,7 @@ import { formats } from 'utils/magic';
 const Decklist = {
   name: 'decklist',
   description: "(WIP) Displays decklist(s) filtered by format, archetype, player, date, and/or by a search query.",
+  hide: true,
   options: [
     {
       name: 'format',

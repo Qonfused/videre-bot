@@ -82,14 +82,22 @@ class Bot extends Client {
     if (!this.commands) this.commands = new Collection();
 
     const files = readdirSync(resolve(__dirname, '../commands'));
+    let hiddenCommands = []
 
     for (const file of files) {
       const command = require(resolve(__dirname, '../commands', file)).default;
-
-      this.commands.set(command.name, command);
+      if (command?.hide !== true) {
+        this.commands.set(command.name, command);
+      } else {
+        hiddenCommands.push(command.name);
+      }
     }
 
-    console.info(`${chalk.cyanBright('[Bot]')} ${files.length} commands loaded`);
+    if (hiddenCommands.length > 0) {
+      console.info(`${chalk.cyanBright('[Bot]')} ${hiddenCommands.length} commands hidden`);
+    }
+
+    console.info(`${chalk.cyanBright('[Bot]')} ${files.length-hiddenCommands.length} commands loaded`);
 
     return this.commands;
   }

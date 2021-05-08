@@ -4,6 +4,7 @@ import { formats, eventTypes } from 'utils/magic';
 const Metagame = {
   name: 'metagame',
   description: "(WIP) Displays a metagame breakdown of decks from the most recent events by format.",
+  hide: true,
   options: [
     {
       name: 'format',
