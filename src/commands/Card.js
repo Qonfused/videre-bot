@@ -34,10 +34,50 @@ const Card = {
     const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
     try {
       let scryfallURL = `https://api.scryfall.com/cards/named?fuzzy=${cardName}`;
-      if (set) scryfallURL += `&set=${set}`;
+      if (set) scryfallURL += `&set=${set.replace(/[^0-9A-Z]+/gi,"")}`;
 
-      const response = await fetch(scryfallURL);
-      if (response.status !== 200) throw new Error(`The requested card could not be found.`);
+      let response = await fetch(scryfallURL);
+
+      // Handle conditions for invalid Scryfall response by each query parameter and condition
+      if (response.status !== 200) {
+        // Get fuzzy response without set
+        const response_1 = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${cardName}`);
+        if (response_1.status !== 200) throw new Error(`The requested card could not be found.`);
+        let data = await response_1.json();
+
+        // Get and handle missing card printings
+        const response_2 = await fetch(data.prints_search_uri);
+        if (response_2.status !== 200) throw new Error(`No printings for the requested card could be found.`);
+        let printings = await response_2.json();
+
+        // Filter unique values
+        function onlyUnique(value, index, self) { return self.indexOf(value) === index; }
+
+        // Get and handle invalid set parameter
+        let sets = printings['data'].map(({ set }) => set).filter(onlyUnique);
+        let message = 'No match was found for the requested card in the specified set.';
+        let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
+        if (data?.name) message += `\n[${sets.length} other printings](${url}) were found.`;
+        if (sets.includes(set) !== true) return {
+          title: 'Error',
+          description: message,
+          thumbnail: {
+            url: !data?.card_faces ? data.image_uris.png : (!data.card_faces[0]?.image_uris ? data.image_uris.png : data.card_faces[0].image_uris.png)
+          },
+          footer: {
+            text: [
+              `🖌 ${data.artist}`,
+              `${data.set.toUpperCase()} (${data.lang.toUpperCase()}) #${data.collector_number}`,
+              data.rarity.replace(/^\w/, (c) => c.toUpperCase())
+            ].join(' • ')
+          },
+          color: 0xe74c3c,
+          ephemeral: true,
+        };
+
+        // Handle other miscellaneous errors 
+        throw new Error(`An error occured while fetching the requested card.`);
+      }
 
       let data = await response.json();
 
