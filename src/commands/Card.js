@@ -42,8 +42,13 @@ const Card = {
       if (response.status !== 200) {
         // Get fuzzy response without set
         const response_1 = await fetch(`https://api.scryfall.com/cards/named?fuzzy=${cardName}`);
-        if (response_1.status !== 200) throw new Error(`The requested card could not be found.`);
         let data = await response_1.json();
+        if (response_1.status !== 200) {
+          if (data.object === "error" || data.type === "ambiguous")
+          throw new Error(`Multiple different cards match the requested cardname.\nPlease refine your search by adding more words or specifying a set code.`);
+          // Handle miscellaneous errors
+          throw new Error(`The requested card could not be found.`);
+        }
 
         // Get and handle missing card printings
         const response_2 = await fetch(data.prints_search_uri);
