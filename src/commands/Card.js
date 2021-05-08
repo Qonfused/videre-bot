@@ -9,6 +9,7 @@ import { manamoji } from 'utils/manamoji';
 const Card = {
   name: 'card',
   description: "Returns a card by name via Scryfall.",
+  type: 'global',
   options: [
     {
       name: 'name',

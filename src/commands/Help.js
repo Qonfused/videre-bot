@@ -7,23 +7,22 @@ const Help = {
   type: 'global',
   execute({ client, interaction }) {
     try {
+      let fields = [];
       if (config.guild && interaction.guild_id === config.guild) {
-        return {
-          title: 'Commands',
-          description: 'Below are a list of commands I can do:',
-          fields: client.commands.map(({ name, options, description }) => ({
+        fields = client.commands.map(({ name, options, description }) => ({
             name: `/${name}${options?.map(({ name }) => ` \`${name}\``) || ''}`,
             value: description,
-          })),
-        };
+          }));
+      } else {
+        fields = client.commands.map(({ name, description, type, options }) => (type === 'global') ? ({
+          name: `/${name}${options?.map(({ name }) => ` \`${name}\``) || ''}`,
+          value: description,
+        }) : {} ).filter(value => Object.keys(value).length !== 0);
       }
       return {
         title: 'Commands',
         description: 'Below are a list of commands I can do:',
-        fields: client.commands.map(({ name, description, type, options }) => (type === 'global') ? ({
-          name: `/${name}${options?.map(({ name }) => ` \`${name}\``) || ''}`,
-          value: description,
-        }) : {} ).filter(value => Object.keys(value).length !== 0),
+        fields: fields,
       };
     } catch (error) {
       console.error(

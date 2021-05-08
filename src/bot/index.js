@@ -132,14 +132,18 @@ class Bot extends Client {
         if (globalCommands.includes(command.name)) {
           const globalCached = globalCache?.find(({ name }) => name === command.name);
           if (globalCached?.id) {
-            await globalRemote().commands(globalCached.id).patch({ data });
+            if(globalCached?.name !== data?.name || globalCached?.description !== data?.description || globalCached?.options !== data?.options) {
+              await globalRemote().commands(globalCached.id).patch({ data });
+            }
           } else {
             await globalRemote().commands.post({ data });
           }
         } else if (config.guild) {
           const guildCached = guildCache?.find(({ name }) => name === command.name);
           if (guildCached?.id) {
-            await guildRemote().commands(guildCached.id).patch({ data });
+            if(guildCached?.name !== data?.name || guildCached?.description !== data?.description || guildCached?.options !== data?.options) {
+              await guildRemote().commands(guildCached.id).patch({ data });
+            }
           } else {
             await guildRemote().commands.post({ data });
           }
