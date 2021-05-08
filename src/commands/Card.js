@@ -33,10 +33,10 @@ const Card = {
     const [cardName, prices, set] = options;
     const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
     try {
-      let scryfallURL = 'https://api.scryfall.com/cards/named?fuzzy=';
+      let scryfallURL = `https://api.scryfall.com/cards/named?fuzzy=${cardName}`;
       if (set) scryfallURL += `&set=${set}`;
 
-      const response = await fetch(`${scryfallURL}${cardName}`);
+      const response = await fetch(scryfallURL);
       if (response.status !== 200) throw new Error(`${response.status} — ${response.statusText}`);
 
       let data = await response.json();
