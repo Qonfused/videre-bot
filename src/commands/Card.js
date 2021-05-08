@@ -12,25 +12,25 @@ const Card = {
   options: [
     {
       name: 'name',
-      description: 'A specific cardname to find a specific card',
+      description: 'A cardname to find a card via Scryfall.',
       type: 'string',
       required: true,
     },
     {
       name: 'set',
-      description: 'A specific set to limit a search to',
+      description: 'A specific 3-letter set code to limit the search to.',
       type: 'string',
       required: false,
     },
     {
       name: 'prices',
-      description: 'Flag to show card prices and price history instead',
+      description: 'Flag to show card prices and price history instead.',
       type: 'boolean',
       required: false,
     },
     {
       name: 'decks',
-      description: 'Flag to show card matches in archetype decklists instead',
+      description: 'Flag to show card matches in archetype decklists instead.',
       type: 'boolean',
       required: false,
     },
@@ -75,7 +75,7 @@ const Card = {
         let message = 'No match was found for the requested card in the specified set.';
         if (sets.length > 0) {
           let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
-          message += `\nHowever, [${sets.length} other printings](${url}) were found.`;
+          message += `\nHowever, [${sets.length} available printings](${url}) were found.`;
         }
         if (sets.includes(set) !== true) return {
           title: 'Error',
@@ -223,7 +223,23 @@ const Card = {
           message.image = { url: 'attachment://file.jpg' };
           message.files = [imageStream];
         } else {
-          message.description = `No prices found for **${data.set_name}** (**${data.set.toUpperCase()}**).`;
+          if (data?.prices?.usd || data?.prices?.eur || data?.prices?.tix) {
+            message.description = `No price history found for **${data.set_name}** (**${data.set.toUpperCase()}**).`;
+          } else {
+            message.description = `No prices found for **${data.set_name}** (**${data.set.toUpperCase()}**).`;
+            message.fields = [];
+
+            const response_2 = await fetch(data.prints_search_uri);
+            let printings = await response_2.json();
+
+            function onlyUnique(value, index, self) { return self.indexOf(value) === index; }
+
+            let sets = printings['data'].map(({ set }) => set).filter(onlyUnique);
+            if (sets.length > 0) {
+              let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
+              message.description += `\nHowever, [${sets.length-1} other available printings](${url}) were found.`;
+            }
+          }
         }
 
         return message;
