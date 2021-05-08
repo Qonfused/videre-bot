@@ -7,7 +7,6 @@ const Help = {
   type: 'global',
   execute({ client, interaction }) {
     try {
-      console.log(client.commands);
       if (config.guild && interaction.guild_id === config.guild) {
         return {
           title: 'Commands',
