@@ -223,7 +223,7 @@ const Card = {
           message.image = { url: 'attachment://file.jpg' };
           message.files = [imageStream];
         } else {
-          message.description = `No results found for **${data.set_name}** (**${data.set.toUpperCase()}**).`;
+          message.description = `No prices found for **${data.set_name}** (**${data.set.toUpperCase()}**).`;
         }
 
         return message;
