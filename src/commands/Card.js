@@ -57,7 +57,7 @@ const Card = {
         let sets = printings['data'].map(({ set }) => set).filter(onlyUnique);
         let message = 'No match was found for the requested card in the specified set.';
         let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
-        if (sets.length > 0) message += `\n[${sets.length} other printings](${url}) were found.`;
+        if (sets.length > 0) message += `\nHowever, [${sets.length} other printings](${url}) were found.`;
         if (sets.includes(set) !== true) return {
           title: 'Error',
           description: message,
@@ -206,13 +206,13 @@ const Card = {
       return message;
 
     }  catch (error) {
-      console.error(
-        chalk.cyan(`[/card]`)+
-        chalk.grey(` cardName: `) + chalk.green(`\"${cardName}\"`)+
-        chalk.grey(` prices: `) + (!prices ? chalk.grey('None') : chalk.yellow(prices))+
-        chalk.grey(` set: `) + (!set ? chalk.grey('None') : chalk.green(`\"${set}\"`))+
-        chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
-      );
+      // console.error(
+      //   chalk.cyan(`[/card]`)+
+      //   chalk.grey(` cardName: `) + chalk.green(`\"${cardName}\"`)+
+      //   chalk.grey(` prices: `) + (!prices ? chalk.grey('None') : chalk.yellow(prices))+
+      //   chalk.grey(` set: `) + (!set ? chalk.grey('None') : chalk.green(`\"${set}\"`))+
+      //   chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
+      // );
       return {
         title: 'Error',
         description: error.message,
