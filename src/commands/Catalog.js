@@ -5,7 +5,7 @@ import { formats, eventTypes } from 'utils/magic';
 const Catalog = {
   name: 'catalog',
   description: "(WIP) Displays most recent events by format, type, and/or date.",
-  hide: true,
+  type: 'hidden',
   options: [
     {
       name: 'format',
@@ -31,7 +31,7 @@ const Catalog = {
   execute({ client, args }) {
 
     try {
-      throw new Error("Command still a work in progress.");
+      //
     } catch (error) {
       // console.error(
       //   chalk.cyan(`[/catalog]`)+

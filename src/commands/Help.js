@@ -3,6 +3,7 @@ import chalk from 'chalk';
 const Help = {
   name: 'help',
   description: "Displays a list of this bot's commands.",
+  type: 'global',
   execute({ client }) {
     try {
       return {

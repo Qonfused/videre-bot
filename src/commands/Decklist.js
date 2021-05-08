@@ -4,7 +4,7 @@ import { formats } from 'utils/magic';
 const Decklist = {
   name: 'decklist',
   description: "(WIP) Displays decklist(s) filtered by format, archetype, player, date, and/or by a search query.",
-  hide: true,
+  type: 'hidden',
   options: [
     {
       name: 'format',
@@ -40,7 +40,7 @@ const Decklist = {
   ],
   execute({ client, args }) {
     try {
-      throw new Error("Command still a work in progress.");
+      //
     } catch (error) {
       // console.error(
       //   chalk.cyan(`[/decklist]`)+

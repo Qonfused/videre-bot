@@ -3,11 +3,11 @@ import chalk from 'chalk';
 const Event = {
   name: 'event',
   description: "(WIP) Displays an event by name, id, date, or search query.",
-  hide: true,
+  type: 'hidden',
   // options
   execute({ client, args }) {
     try {
-      throw new Error("Command still a work in progress.");
+      //
     } catch (error) {
       // chalk error logging
       return {

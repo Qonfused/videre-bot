@@ -28,12 +28,12 @@ const Card = {
       type: 'boolean',
       required: false,
     },
-    {
-      name: 'decks',
-      description: 'Flag to show card matches in archetype decklists instead.',
-      type: 'boolean',
-      required: false,
-    },
+    // {
+    //   name: 'decks',
+    //   description: 'Flag to show card matches in archetype decklists instead.',
+    //   type: 'boolean',
+    //   required: false,
+    // },
   ],
   async execute({ client, args }) {
 
@@ -242,7 +242,6 @@ const Card = {
       }
 
       // Handle decklist results
-      throw new Error("Decklist data still a work in progress.");
 
     }  catch (error) {
       // console.error(

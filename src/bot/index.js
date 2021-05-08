@@ -6,6 +6,9 @@ import { validateMessage, validateCommand } from 'utils/discord';
 import { INTERACTION_RESPONSE_TYPE, INTERACTION_RESPONSE_FLAGS } from 'constants';
 import config from 'config';
 
+let globalCommands = [];
+let guildCommands = [];
+
 // An extended `Client` to support slash-command interactions and events.
 class Bot extends Client {
   /**
@@ -86,11 +89,15 @@ class Bot extends Client {
 
     for (const file of files) {
       const command = require(resolve(__dirname, '../commands', file)).default;
-      if (command?.hide !== true) {
+      if (command?.type !== 'hidden') {
+        // Register command
         this.commands.set(command.name, command);
-      } else {
-        hiddenCommands.push(command.name);
-      }
+        // Add command to global commands list
+        if (command?.type === 'global') { globalCommands.push(command.name); }
+        // Add command to guild Commands list
+        else if (config.guild) { guildCommands.push(command.name); }
+      // Hide command
+      } else { hiddenCommands.push(command.name); }
     }
 
     if (hiddenCommands.length > 0) {
@@ -105,14 +112,16 @@ class Bot extends Client {
   // Updates slash commands with Discord.
   async updateCommands() {
     console.info(`${chalk.cyanBright('[Bot]')} Updating slash commands...`);
-    // Get remote target
-    const remote = () =>
+    // Get remote targets
+    const globalRemote = () => this.api.applications(this.user.id);
+    const guildRemote = () =>
       config.guild
         ? this.api.applications(this.user.id).guilds(config.guild)
-        : this.api.applications(this.user.id);
+        : undefined;
 
     // Get remote cache
-    const cache = await remote().commands.get();
+    const globalCache = await globalRemote().commands.get();
+    const guildCache = await guildRemote().commands.get();
 
     // Update remote
     await Promise.all(
@@ -120,25 +129,40 @@ class Bot extends Client {
         // Validate command props
         const data = validateCommand(command);
 
-        // Check for cache
-        const cached = cache?.find(({ name }) => name === command.name);
-
-        // Update or create command
-        if (cached?.id) {
-          await remote().commands(cached.id).patch({ data });
-        } else {
-          await remote().commands.post({ data });
+        if (globalCommands.includes(command.name)) {
+          const globalCached = globalCache?.find(({ name }) => name === command.name);
+          if (globalCached?.id) {
+            await globalRemote().commands(globalCached.id).patch({ data });
+          } else {
+            await globalRemote().commands.post({ data });
+          }
+        } else if (config.guild) {
+          const guildCached = guildCache?.find(({ name }) => name === command.name);
+          if (guildCached?.id) {
+            await guildRemote().commands(guildCached.id).patch({ data });
+          } else {
+            await guildRemote().commands.post({ data });
+          }
         }
       })
     );
 
-    // Purge removed commands
-    await Promise.all(
-      cache.map(async command => {
+    // Purge removed global commands
+    if (globalCache) await Promise.all(
+      globalCache.map(async command => {
         const exists = this.commands.get(command.name);
-
         if (!exists) {
-          await remote().commands(command.id).delete();
+          await globalRemote().commands(command.id).delete();
+        }
+      })
+    );
+
+    // Purge removed guild commands
+    if (guildCache) await Promise.all(
+      guildCache.map(async command => {
+        const exists = this.commands.get(command.name);
+        if (!exists) {
+          await guildRemote().commands(command.id).delete();
         }
       })
     );

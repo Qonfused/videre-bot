@@ -3,6 +3,7 @@ import chalk from 'chalk';
 const Debug = {
   name: 'debug',
   description: "(WIP) Displays the bot's current uptime, cluster info, and latency.",
+  type: 'guild',
   execute({ client, interaction }) {
     try {
       // Get uptime in nearest days, hours, minutes and seconds
