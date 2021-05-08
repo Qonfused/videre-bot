@@ -151,7 +151,7 @@ class Bot extends Client {
     if (globalCache) await Promise.all(
       globalCache.map(async command => {
         const exists = this.commands.get(command.name);
-        if (!exists) {
+        if (!exists || !globalCommands.includes(command.name)) {
           await globalRemote().commands(command.id).delete();
         }
       })
@@ -161,7 +161,7 @@ class Bot extends Client {
     if (guildCache) await Promise.all(
       guildCache.map(async command => {
         const exists = this.commands.get(command.name);
-        if (!exists) {
+        if (!exists || !guildCommands.includes(command.name)) {
           await guildRemote().commands(command.id).delete();
         }
       })
