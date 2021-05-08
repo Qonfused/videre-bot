@@ -57,7 +57,7 @@ const Card = {
         let sets = printings['data'].map(({ set }) => set).filter(onlyUnique);
         let message = 'No match was found for the requested card in the specified set.';
         let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
-        if (data?.name) message += `\n[${sets.length} other printings](${url}) were found.`;
+        if (sets.length > 0) message += `\n[${sets.length} other printings](${url}) were found.`;
         if (sets.includes(set) !== true) return {
           title: 'Error',
           description: message,
@@ -75,7 +75,7 @@ const Card = {
           ephemeral: true,
         };
 
-        // Handle other miscellaneous errors 
+        // Handle other miscellaneous errors
         throw new Error(`An error occured while fetching the requested card.`);
       }
 
