@@ -52,12 +52,13 @@ const Debug = {
         ],
       };
     } catch (error) {
-      // Send full error stack to console
-      console.error(chalk.red(`/debug >> ${ error.stack }`));
-      // Send brief error message in Discord response
+      console.error(
+        chalk.cyan(`[/debug]`)+
+        chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
+      );
       return {
         title: 'Error',
-        description: `An error occured while retrieving this bot's debug info.\n**>>** \`${ error.message }\``,
+        description: error.message,
         color: 0xe74c3c,
         ephemeral: true,
       };

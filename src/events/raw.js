@@ -23,7 +23,12 @@ const RawEvent = {
       const command = client.commands.get(name);
       if (!command) return;
 
-      const args = options?.map(({ value }) => value);
+      let args = options.reduce((object, { name, value }) => {
+        object[name] = value;
+
+        return object;
+      }, {});
+
       const output = await command.execute({ client, interaction, args });
       if (!output) return;
 

@@ -14,12 +14,13 @@ const Help = {
         })),
       };
     } catch (error) {
-      // Send full error stack to console
-      console.error(chalk.red(`/help >> ${error.stack}`));
-      // Send brief error message in Discord response
+      console.error(
+        chalk.cyan(`[/help]`)+
+        chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
+      );
       return {
         title: 'Error',
-        description: `An error occured while retrieving commands.\n**>>** \`${error.message}\``,
+        description: `An error occured while retrieving commands.`,
         color: 0xe74c3c,
         ephemeral: true,
       };

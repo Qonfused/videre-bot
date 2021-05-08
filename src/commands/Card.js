@@ -29,9 +29,14 @@ const Card = {
       required: false,
     },
   ],
-  async execute({ client, interaction, args }) {
-    const [cardName, prices, set] = args;
+  async execute({ client, args }) {
+
+    const cardName = args?.name;
+    const prices = args?.prices;
+    const set = args?.set;
+
     const findEmoji = symbol => client.emojis.cache.find(emoji => emoji.name === symbol);
+
     try {
       let scryfallURL = `https://api.scryfall.com/cards/named?fuzzy=${cardName}`;
       if (set) scryfallURL += `&set=${set.replace(/[^0-9A-Z]+/gi,"")}`;
@@ -61,8 +66,10 @@ const Card = {
         // Get and handle invalid set parameter
         let sets = printings['data'].map(({ set }) => set).filter(onlyUnique);
         let message = 'No match was found for the requested card in the specified set.';
-        let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
-        if (sets.length > 0) message += `\nHowever, [${sets.length} other printings](${url}) were found.`;
+        if (sets.length > 0) {
+          let url = `https://scryfall.com/search?as=grid&order=released&q=%21%22${data?.name}%22&unique=prints`;
+          message += `\nHowever, [${sets.length} other printings](${url}) were found.`;
+        }
         if (sets.includes(set) !== true) return {
           title: 'Error',
           description: message,
@@ -179,7 +186,7 @@ const Card = {
       const cardPrices = await child_process.execSync(`python ./src/utils/cardPrices.py --cardname \"${ data.name }\" --set \"${ data.set.toUpperCase() }\"`);
 
       const json = cardPrices.toString().length > 2 ? JSON.parse(cardPrices.toString()) : {};
-      const imageStream = cardPrices.toString().length > 2 ? new Buffer.from(json?.graph, 'base64') : undefined;
+      const imageStream = cardPrices.toString().length > 2 ? new Buffer.from(json?.graph, 'base64') : {};
 
       const description = `Showing results for **${data.set_name}** (**${data.set.toUpperCase()}**):`;
 
@@ -204,9 +211,13 @@ const Card = {
         color: '#3498DB',
       }
 
-      if (cardPrices.toString().length > 2) message.url = json?.url;
-      if (cardPrices.toString().length > 2) message.image = { url: 'attachment://file.jpg' };
-      if (cardPrices.toString().length > 2) message.files = [imageStream];
+      if (cardPrices.toString().length > 2) {
+        message.url = json?.url;
+        message.image = { url: 'attachment://file.jpg' };
+        message.files = [imageStream];
+      } else {
+        message.description = `No results found for **${data.set_name}** (**${data.set.toUpperCase()}**).`;
+      }
 
       return message;
 
@@ -214,8 +225,8 @@ const Card = {
       // console.error(
       //   chalk.cyan(`[/card]`)+
       //   chalk.grey(` cardName: `) + chalk.green(`\"${cardName}\"`)+
-      //   chalk.grey(` prices: `) + (!prices ? chalk.grey('None') : chalk.yellow(prices))+
-      //   chalk.grey(` set: `) + (!set ? chalk.grey('None') : chalk.green(`\"${set}\"`))+
+      //   chalk.grey(` prices: `) + (!prices ? chalk.white('None') : chalk.yellow(prices))+
+      //   chalk.grey(` set: `) + (!set ? chalk.white('None') : chalk.green(`\"${set}\"`))+
       //   chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
       // );
       return {
@@ -224,7 +235,6 @@ const Card = {
         color: 0xe74c3c,
         ephemeral: true,
       };
-
     }
   },
 };

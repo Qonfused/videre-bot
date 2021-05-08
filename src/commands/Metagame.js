@@ -13,16 +13,18 @@ const Metagame = {
       choices: formats,
     },
   ],
-  execute({ client }) {
+  execute({ client, args }) {
     try {
-      //
+      throw new Error("Command still a work in progress.");
     } catch (error) {
-      // Send full error stack to console
-      console.error(chalk.red(`/metagame >> ${error.stack}`));
-      // Send brief error message in Discord response
+      // console.error(
+      //   chalk.cyan(`[/metagame]`)+
+      //   chalk.grey(` format: `) + (!format ? chalk.white('None') : chalk.green(`\"${format}\"`))+
+      //   chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
+      // );
       return {
         title: 'Error',
-        description: `An error occured while retrieving metagame data.\n**>>** \`${error.message}\``,
+        description: error.message,
         color: 0xe74c3c,
         ephemeral: true,
       };

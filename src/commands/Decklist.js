@@ -37,16 +37,21 @@ const Decklist = {
       required: false,
     },
   ],
-  execute({ client }) {
+  execute({ client, args }) {
     try {
-      //
+      throw new Error("Command still a work in progress.");
     } catch (error) {
-      // Send full error stack to console
-      console.error(chalk.red(`/decklist >> ${error.stack}`));
-      // Send brief error message in Discord response
+      // console.error(
+      //   chalk.cyan(`[/decklist]`)+
+      //   chalk.grey(` archetype: `) + (!archetype ? chalk.white('None') : chalk.green(`\"${archetype}\"`))+
+      //   chalk.grey(` player: `) + (!player ? chalk.white('None') : chalk.green(`\"${player}\"`))+
+      //   chalk.grey(` date: `) + (!date ? chalk.white('None') : chalk.green(`\"${date}\"`))+
+      //   chalk.grey(` query: `) + (!query ? chalk.white('None') : chalk.green(`\"${query}\"`))+
+      //   chalk.grey('\n>> ') + chalk.red(`Error: ${error.message}`)
+      // );
       return {
         title: 'Error',
-        description: `An error occured while retrieving decklists.\n**>>** \`${error.message}\``,
+        description: error.message,
         color: 0xe74c3c,
         ephemeral: true,
       };
